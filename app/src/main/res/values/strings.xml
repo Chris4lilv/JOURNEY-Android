@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Album</string>
+    <string name="delete">DELETE</string>
+    <string name="cancel">CANCEL</string>
+    <string name="dialog_delete_event_title">Delete event?</string>
+    <string name="dialog_delete_event_message">
+        This action will delete remove all related images permanently.
+    </string>
+    <string name="caption_hint">Add your caption</string>
+</resources>
