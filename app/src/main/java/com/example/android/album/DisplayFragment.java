@@ -2,8 +2,11 @@ package com.example.android.album;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ExpandableListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +35,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.w3c.dom.Text;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +53,22 @@ public class DisplayFragment extends Fragment {
     private DatabaseReference mDatabaseRef;
     private AlertDialog.Builder builder;
     private FirebaseStorage mFirebaseStorage;
+    private TextView emptyView;
+    private ProgressBar loadingIndicator;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.display_fragment,null);
 
+        emptyView = (TextView) view.findViewById(R.id.empty_view);
+
+        loadingIndicator = (ProgressBar)view.findViewById(R.id.loading_indicator);
+
         //instantiate necessary object
         mListView = view.findViewById(R.id.listView);
+        mListView.setEmptyView(emptyView);
+
         eventsList = new ArrayList<>();
         eventKeyList = new ArrayList<>();
 
@@ -64,30 +80,43 @@ public class DisplayFragment extends Fragment {
         mDatabaseRef = mFirebaseDatabase.getReference();
         mFirebaseStorage = FirebaseStorage.getInstance();
 
-        mDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                eventsList.clear();
-                eventKeyList.clear();
-                for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()){
-                    Event event = eventSnapshot.getValue(Event.class);
-                    String eventKey = eventSnapshot.getKey();
-                    eventKeyList.add(eventKey);
-                    eventsList.add(event);
+        //This part checks the Internet connection
+        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()){
+            mDatabaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    eventsList.clear();
+                    eventKeyList.clear();
+                    for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()){
+                        Event event = eventSnapshot.getValue(Event.class);
+                        String eventKey = eventSnapshot.getKey();
+                        eventKeyList.add(eventKey);
+                        eventsList.add(event);
+                    }
+                    //Hide the loading indicator after the first time loading
+                    loadingIndicator.setVisibility(View.GONE);
+
+                    listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
+                    mListView.setAdapter(listViewAdapter);
+                    listViewAdapter.notifyDataSetChanged();
                 }
 
-                listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
-                mListView.setAdapter(listViewAdapter);
-                listViewAdapter.notifyDataSetChanged();
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+        }else{
+            //Hide the loading indicator before showing Internet connection error
+            View loadingIndicator = view.findViewById(R.id.loading_indicator);
+            loadingIndicator.setVisibility(View.GONE);
 
-            }
-        });
+            emptyView.setText("No Internet Connection...");
 
-        //TODO: after finish above, rebuild the list_item file to contain an Glide widget and get to know how to display image using its URL
+        }
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
