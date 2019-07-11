@@ -1,6 +1,7 @@
 package com.example.android.album;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -124,6 +125,7 @@ public class DisplayFragment extends Fragment {
                 Event currentEvent = eventsList.get(position);
                 ArrayList<String> URLs = currentEvent.getUrl();
                 String key = eventKeyList.get(position);
+                String title = currentEvent.getCaption();
 
 
                 Intent intent = new Intent(getActivity(),Gallery.class);
@@ -131,10 +133,14 @@ public class DisplayFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putStringArrayList("URLs",URLs);
                 bundle.putString("Key",key);
+                bundle.putString("Title",title);
 //                intent.putExtra("URLs",URLs);
 //                intent.putExtra("Key",key);
+                Bundle animation = ActivityOptions.makeSceneTransitionAnimation(
+                        getActivity(),view.findViewById(R.id.caption_text_view), view.findViewById(R.id.caption_text_view).getTransitionName()
+                ).toBundle();
                 intent.putExtras(bundle);
-                startActivity(intent);
+                startActivity(intent,animation);
             }
         });
 

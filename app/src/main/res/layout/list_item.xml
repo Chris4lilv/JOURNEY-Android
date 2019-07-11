@@ -69,7 +69,8 @@
                         android:textColor="#000000"
                         android:textAlignment="center"
                         android:paddingTop="5dp"
-                        android:textAppearance="?android:textAppearanceLarge"/>
+                        android:textAppearance="?android:textAppearanceLarge"
+                        android:transitionName="@string/listItem_to_gallery_transition"/>
 
 
                 </RelativeLayout>

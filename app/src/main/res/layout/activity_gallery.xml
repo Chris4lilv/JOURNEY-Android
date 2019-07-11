@@ -19,7 +19,8 @@
             app:collapsedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
             app:expandedTitleMarginStart="72dp"
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            >
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/app_bar"
@@ -28,8 +29,19 @@
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
                 app:contentInsetStart="72dp"
                 app:layout_collapseMode="pin">
-
             </androidx.appcompat.widget.Toolbar>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="Title"
+                android:id="@+id/gallery_title"
+                android:paddingLeft="20dp"
+                android:fontFamily="Roboto"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textSize="40dp"
+                android:transitionName="@string/listItem_to_gallery_transition"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

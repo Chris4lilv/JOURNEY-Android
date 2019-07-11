@@ -11,8 +11,10 @@ import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -30,7 +32,9 @@ public class Gallery extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseRef;
     ArrayList<String> urlsList;
+    private TextView galleryTitle;
     String key;
+    String title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,12 @@ public class Gallery extends AppCompatActivity {
         Intent intent = getIntent();
         urlsList = intent.getExtras().getStringArrayList("URLs");
         key = intent.getExtras().getString("Key");
+        title = intent.getExtras().getString("Title");
+
+
+        //Set the event caption to be the gallery title
+        galleryTitle = findViewById(R.id.gallery_title);
+        galleryTitle.setText(title);
 
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -118,9 +128,9 @@ public class Gallery extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        finish();
+//    }
 }
