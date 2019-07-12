@@ -128,9 +128,8 @@ public class Gallery extends AppCompatActivity {
 
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//        finish();
-//    }
+    @Override
+    public void onBackPressed() {
+        supportFinishAfterTransition();
+    }
 }
