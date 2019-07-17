@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/holo_orange_light">
+    android:id="@+id/activity_view">
 
     <com.gauravk.bubblenavigation.BubbleNavigationConstraintView
         android:id="@+id/top_navigation_constraint"
@@ -14,7 +14,8 @@
         android:layout_margin="16dp"
         android:background="@android:color/white"
         android:elevation="4dp"
-        app:bnc_mode="spread">
+        app:bnc_mode="spread"
+        android:backgroundTint="@color/colorPrimary">
 
         <com.gauravk.bubblenavigation.BubbleToggleView
             android:id="@+id/bubble_panel_calendar"

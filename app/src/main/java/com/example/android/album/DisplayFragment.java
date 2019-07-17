@@ -1,5 +1,7 @@
 package com.example.android.album;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
@@ -8,24 +10,38 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,27 +51,45 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DisplayFragment extends Fragment {
 
     private final static int RC_GALLERY = 1;
+    private static final int RC_CONGRATS =  2;
+
 
     private ListView mListView;
     private ListViewAdapter listViewAdapter;
     private ArrayList<Event> eventsList;
     private ArrayList<String> eventKeyList;
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mDatabaseRef;
+
     private AlertDialog.Builder builder;
-    private FirebaseStorage mFirebaseStorage;
     private TextView emptyView;
     private ProgressBar loadingIndicator;
+    private FloatingActionButton fabAdd;
+
+
+    private CoordinatorLayout layoutMain;
+    private RelativeLayout layoutButtons;
+    private RelativeLayout layoutContent;
+    private boolean isOpen = false;
+
+    private static final int RC_PHOTO_PICKER =  2;
+
+    //setup firebase
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mDatabaseRef;
+    private FirebaseStorage mFirebaseStorage;
+    private StorageReference mStorageReference;
+
 
     @Nullable
     @Override
@@ -66,20 +100,32 @@ public class DisplayFragment extends Fragment {
 
         loadingIndicator = (ProgressBar)view.findViewById(R.id.loading_indicator);
 
-        //instantiate necessary object
-        mListView = view.findViewById(R.id.listView);
-        mListView.setEmptyView(emptyView);
-
         eventsList = new ArrayList<>();
         eventKeyList = new ArrayList<>();
 
-
+        //ListView component
+        mListView = view.findViewById(R.id.listView);
+        mListView.setEmptyView(emptyView);
         listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
         mListView.setAdapter(listViewAdapter);
 
+        //Firebase component
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseRef = mFirebaseDatabase.getReference();
         mFirebaseStorage = FirebaseStorage.getInstance();
+        mStorageReference = mFirebaseStorage.getReference().child("Lovely_pic");
+
+        //Fab animation component
+        fabAdd = view.findViewById(R.id.fab_add);
+
+        //Activate the FAB
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presentActivity(v);
+            }
+        });
+
 
         //This part checks the Internet connection
         ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -118,6 +164,9 @@ public class DisplayFragment extends Fragment {
             emptyView.setText("No Internet Connection...");
 
         }
+
+
+
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -199,7 +248,27 @@ public class DisplayFragment extends Fragment {
         });
 
 
+
+
         return view;
     }
+
+    /**
+     * Display @activity_new_event using FAB with circular reveal animation
+     */
+    public void presentActivity(View view) {
+        View activityView = getActivity().findViewById(R.id.activity_view);
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(getActivity(), view, "transition");
+        int revealX = (int) (view.getX() + activityView.getWidth() / 2);
+        int revealY = (int) (view.getY() + activityView.getHeight() / 2);
+
+        Intent intent = new Intent(getActivity(), NewEventActivity.class);
+        intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_X, revealX);
+        intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_Y, revealY);
+
+        ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
+    }
+
 
 }

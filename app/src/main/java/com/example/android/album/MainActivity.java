@@ -25,9 +25,6 @@ public class MainActivity extends AppCompatActivity {
     //TODO: listview 左边显示日期背景更换
     //TODO：让listview的每一个item透明度低一些
     //TODO：listview的title字体更换
-    //TODO：fragment背景更换
-    //TODO: 首次进入app，event还未加载时用listview.setEmptyView来改善用户体验
-    //TODO: 接上一条，在加载时设置indeterminate progress bar 圆形
 
     static final int NUM_ITEMS = 2;
 

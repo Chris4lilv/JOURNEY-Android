@@ -32,8 +32,8 @@ public class AddFragment extends Fragment {
         newEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewEventActivity.class);
-                startActivityForResult(intent,RC_CONGRATS);
+//                Intent intent = new Intent(getActivity(), NewEventActivity.class);
+//                startActivityForResult(intent,RC_CONGRATS);
             }
         });
         return view;

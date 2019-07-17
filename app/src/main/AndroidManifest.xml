@@ -12,6 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".NewEventActivity"
+            android:theme="@style/AppTheme.Transparent"></activity>
         <activity android:name=".SingleImageActivity"></activity>
         <activity android:name=".Gallery" />
         <activity android:name=".MainActivity">
@@ -21,7 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewEventActivity" />
     </application>
 
 </manifest>
