@@ -186,8 +186,9 @@ public class DisplayFragment extends Fragment {
 //                intent.putExtra("URLs",URLs);
 //                intent.putExtra("Key",key);
                 Bundle animation = ActivityOptions.makeSceneTransitionAnimation(
-                        getActivity(),view.findViewById(R.id.caption_text_view), view.findViewById(R.id.caption_text_view).getTransitionName()
+                        getActivity(),view.findViewById(R.id.date_linear_layout), view.findViewById(R.id.date_linear_layout).getTransitionName()
                 ).toBundle();
+
                 intent.putExtras(bundle);
                 startActivity(intent,animation);
             }

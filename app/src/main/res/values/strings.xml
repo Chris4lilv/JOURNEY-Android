@@ -7,5 +7,5 @@
         This action will delete remove all related images permanently.
     </string>
     <string name="caption_hint">Add your caption</string>
-    <string name="listItem_to_gallery_transition">transition_title</string>
+    <string name="listItem_to_gallery_transition">transition_cardView</string>
 </resources>

@@ -7,12 +7,12 @@
 
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/list_item_card_view"
         android:layout_width="330dp"
         android:layout_height="110dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:layout_marginBottom = "10dp">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -24,9 +24,10 @@
                     android:orientation="vertical"
                     android:layout_weight="2"
                     android:background="#03DAC6"
-                    android:id="@+id/date_linear_layout">
+                    android:id="@+id/date_linear_layout"
+                    android:transitionName="@string/listItem_to_gallery_transition">
 
-                    <TextView
+                <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/day_text_view"
@@ -69,8 +70,7 @@
                         android:textColor="#000000"
                         android:textAlignment="center"
                         android:paddingTop="5dp"
-                        android:textAppearance="?android:textAppearanceLarge"
-                        android:transitionName="@string/listItem_to_gallery_transition"/>
+                        android:textAppearance="?android:textAppearanceLarge"/>
 
 
                 </RelativeLayout>
