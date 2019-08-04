@@ -42,6 +42,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -89,12 +90,18 @@ public class DisplayFragment extends Fragment {
     private DatabaseReference mDatabaseRef;
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mStorageReference;
+    private String mCurrentUser;
+    private String mDirectory;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.display_fragment,null);
+
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@"));
+
 
         emptyView = (TextView) view.findViewById(R.id.empty_view);
 
@@ -113,7 +120,7 @@ public class DisplayFragment extends Fragment {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseRef = mFirebaseDatabase.getReference();
         mFirebaseStorage = FirebaseStorage.getInstance();
-        mStorageReference = mFirebaseStorage.getReference().child("Lovely_pic");
+        mStorageReference = mFirebaseStorage.getReference().child(mDirectory);
 
         //Fab animation component
         fabAdd = view.findViewById(R.id.fab_add);
@@ -132,7 +139,7 @@ public class DisplayFragment extends Fragment {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()){
-            mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            mDatabaseRef.child(mDirectory).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     eventsList.clear();

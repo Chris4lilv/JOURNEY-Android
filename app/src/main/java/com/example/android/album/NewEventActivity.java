@@ -30,6 +30,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -48,6 +49,8 @@ public class NewEventActivity extends AppCompatActivity {
     StorageReference mStorageReference;
     FirebaseDatabase database;
     DatabaseReference myRef;
+    private String mCurrentUser;
+    private String mDirectory;
 
     ArrayList<String> imageUri;
 
@@ -90,13 +93,16 @@ public class NewEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
 
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@"));
+
 
 
         //initialize storage, database and their reference
         mStorage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
-        mStorageReference = mStorage.getReference().child("Lovely_pic");
+        mStorageReference = mStorage.getReference().child(mDirectory);
 
         imageUri = new ArrayList<>();
 
@@ -209,7 +215,7 @@ public class NewEventActivity extends AppCompatActivity {
                         String cap = caption.getText().toString();
                         String date = year + month + day;
                         Event event = new Event(imageUri,cap,date);
-                        myRef.push().setValue(event);
+                        myRef.child(mDirectory).push().setValue(event);
                         //kill the activity and remove it from the stack
                         onBackPressed();
                     }
