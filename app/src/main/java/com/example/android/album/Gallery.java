@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -36,10 +36,16 @@ public class Gallery extends AppCompatActivity {
     String key;
     String title;
 
+    private String mCurrentUser;
+    private String mDirectory;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@"));
 
         /**
          * Get URLs of events from DisplayFragment
@@ -96,12 +102,14 @@ public class Gallery extends AppCompatActivity {
                     int position = recyclerView.getChildLayoutPosition(childView);
                     StorageReference mPhotoRef = mFirebaseStorage.getReferenceFromUrl(urlsList.get(position));
                     mPhotoRef.delete();
-                    mDatabaseRef.child(key).child("url").removeValue();
+                    mDatabaseRef.child(mDirectory).child(key).child("url").child(Integer.toString(position)).removeValue();
                     //update the UI
                     urlsList.remove(position);
                     adapter.replaceAll(urlsList);
-                    Toast.makeText(getApplicationContext(),"haha",Toast.LENGTH_SHORT).show();
-                    setResult(Activity.RESULT_OK);
+                    Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
+                    Intent updateURL = new Intent();
+                        updateURL.putStringArrayListExtra("newURL", urlsList);
+                        setResult(Activity.RESULT_OK,updateURL);
                 }
             }
         });

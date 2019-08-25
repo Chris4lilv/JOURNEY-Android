@@ -75,9 +75,6 @@ public class SignInActivity extends AppCompatActivity {
 
         passwordReveal = findViewById(R.id.password_reveal);
 
-        //This will hide password when type in
-        inputPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-
         //Edit text animation when it is empty
         shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 
@@ -116,6 +113,8 @@ public class SignInActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 if(!editable.toString().isEmpty()){
                     inputPassword.setEnabled(true);
+                    //This will hide password when type in
+                    inputPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
                     inputPassword.setInputType(InputType.TYPE_CLASS_TEXT);
                 }else{
                     inputPassword.setEnabled(false);

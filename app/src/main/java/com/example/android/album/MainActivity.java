@@ -1,6 +1,10 @@
 package com.example.android.album;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -10,105 +14,80 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.airbnb.lottie.LottieAnimationView;
-import com.gauravk.bubblenavigation.BubbleNavigationConstraintView;
-import com.gauravk.bubblenavigation.listener.BubbleNavigationChangeListener;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    //TODO: make title bar disappeared
     //TODO: listview 左边显示日期背景更换
     //TODO：让listview的每一个item透明度低一些
     //TODO：listview的title字体更换
 
-    static final int NUM_ITEMS = 2;
+    private DrawerLayout mDrawerLayout;
+    private Toolbar toolbar;
+    private FirebaseAuth mAuth;
+    private TextView mUserName;
 
-    BubbleNavigationConstraintView bubNav;
-
-    ViewPager mViewPager;
-    MyAdapter mAdapter;
-    ArrayList<View> viewsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAdapter = new MyAdapter(getSupportFragmentManager());
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
 
-        //instantiate Bubble constraint view
-        bubNav = (BubbleNavigationConstraintView) findViewById(R.id.top_navigation_constraint);
+        toolbar = findViewById(R.id.toolbar);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        //instantiate ViewPager
-        mViewPager = (ViewPager) findViewById(R.id.viewPager);
-
-        //instantiate viewsList
-        viewsList = new ArrayList<>();
-        View displayView = LayoutInflater.from(this).inflate(R.layout.display_fragment,null);
-        View addEventView = LayoutInflater.from(this).inflate(R.layout.add_fragment,null);
-        viewsList.add(displayView);
-        viewsList.add(addEventView);
-
-        //apply adapter to the view pager
-        mViewPager.setAdapter(mAdapter);
+        //This create the icon at the upper left corner that would change as navigation drawer open
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.caption_hint,R.string.cancel);
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
 
+        DisplayFragment displayFragment = new DisplayFragment();
 
-        bubNav.setNavigationChangeListener(new BubbleNavigationChangeListener() {
+        FragmentManager fmManager = getSupportFragmentManager();
+
+        fmManager.beginTransaction()
+                .add(R.id.display_fragment,displayFragment).commit();
+
+
+        NavigationView nv_left = findViewById(R.id.navigation);
+        View headerView = nv_left.getHeaderView(0);
+
+        mUserName = headerView.findViewById(R.id.user_name);
+        mUserName.setText(user.getDisplayName());
+
+        nv_left.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onNavigationChanged(View view, int position) {
-                //navigation changed, do something????
-                mViewPager.setCurrentItem(position);
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_logout://条目的ID
+                        mAuth.signOut();
+                        Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                }
+                return false;
             }
         });
 
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i1) {
 
-            }
-
-            @Override
-            public void onPageSelected(int i) {
-                bubNav.setCurrentActiveItem(i);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {
-                //bubView.setCurrentActiveItem(i);
-            }
-        });
     }
 
-
-
-
-    public static class MyAdapter extends FragmentPagerAdapter {
-        public MyAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public int getCount(){
-            return NUM_ITEMS;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Fragment fragment;
-            if(position == 0) {
-                fragment = new DisplayFragment();
-            } else {
-                fragment = new AddFragment();
-            }
-            return fragment;
-        }
-    }
 }
 
 

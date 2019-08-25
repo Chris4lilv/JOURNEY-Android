@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -41,6 +42,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -63,7 +65,7 @@ import java.util.List;
 
 public class DisplayFragment extends Fragment {
 
-    private final static int RC_GALLERY = 1;
+    private static int RC_GALLERY = 0;
     private static final int RC_CONGRATS =  2;
 
 
@@ -81,9 +83,10 @@ public class DisplayFragment extends Fragment {
     private CoordinatorLayout layoutMain;
     private RelativeLayout layoutButtons;
     private RelativeLayout layoutContent;
-    private boolean isOpen = false;
 
     private static final int RC_PHOTO_PICKER =  2;
+
+    private AppBarLayout appBarLayout;
 
     //setup firebase
     private FirebaseDatabase mFirebaseDatabase;
@@ -132,6 +135,8 @@ public class DisplayFragment extends Fragment {
                 presentActivity(v);
             }
         });
+
+        appBarLayout = getActivity().findViewById(R.id.app_bar_layout);
 
 
         //This part checks the Internet connection
@@ -190,6 +195,7 @@ public class DisplayFragment extends Fragment {
                 bundle.putStringArrayList("URLs",URLs);
                 bundle.putString("Key",key);
                 bundle.putString("Title",title);
+                RC_GALLERY = position;
 //                intent.putExtra("URLs",URLs);
 //                intent.putExtra("Key",key);
                 Bundle animation = ActivityOptions.makeSceneTransitionAnimation(
@@ -197,7 +203,8 @@ public class DisplayFragment extends Fragment {
                 ).toBundle();
 
                 intent.putExtras(bundle);
-                startActivity(intent,animation);
+
+                startActivityForResult(intent,RC_GALLERY,animation);
             }
         });
 
@@ -215,7 +222,7 @@ public class DisplayFragment extends Fragment {
                         Event currentEvent = eventsList.get(position);
                         //get the corresponding key and remove event in database
                         String key = eventKeyList.get(position);
-                        mDatabaseRef.child(key).removeValue();
+                        mDatabaseRef.child(mDirectory).child(key).removeValue();
                         eventsList.remove(position);
 
                         //remove the image related to this event in storage
@@ -237,6 +244,9 @@ public class DisplayFragment extends Fragment {
                             }
                         }
 
+                        //update the adapter
+                        ListViewAdapter listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
+                        mListView.setAdapter(listViewAdapter);
                     }
                 });
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -247,18 +257,27 @@ public class DisplayFragment extends Fragment {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-//                confirmDelete(position);
-                //update the adapter
-                listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
-                mListView.setAdapter(listViewAdapter);
                 return true;
             }
         });
 
 
 
-
         return view;
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == RC_GALLERY){
+            int position = RC_GALLERY;
+            if(data != null){
+                ArrayList<String> newURL = data.getStringArrayListExtra("newURL");
+                Event currentEvent = eventsList.get(position);
+                currentEvent.setUrl(newURL);
+            }
+
+        }
     }
 
     /**
