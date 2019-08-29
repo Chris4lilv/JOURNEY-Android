@@ -2,6 +2,7 @@ package com.example.android.album;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,10 @@ public class ListViewAdapter extends ArrayAdapter<Event> {
         TextView month = listItemView.findViewById(R.id.month_text_view);
         TextView day = listItemView.findViewById(R.id.day_text_view);
         TextView caption = listItemView.findViewById(R.id.caption_text_view);
+
+        //Set caption font
+        Typeface typeFace =Typeface.createFromAsset(getContext().getAssets(),"font/roboto_light.ttf");
+        caption.setTypeface(typeFace);
 
         //update UI
         year.setText(currentEvent.getDate().substring(0,4));

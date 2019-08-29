@@ -74,15 +74,9 @@ public class DisplayFragment extends Fragment {
     private ArrayList<Event> eventsList;
     private ArrayList<String> eventKeyList;
 
-    private AlertDialog.Builder builder;
     private TextView emptyView;
     private ProgressBar loadingIndicator;
     private FloatingActionButton fabAdd;
-
-
-    private CoordinatorLayout layoutMain;
-    private RelativeLayout layoutButtons;
-    private RelativeLayout layoutContent;
 
     private static final int RC_PHOTO_PICKER =  2;
 
@@ -199,7 +193,7 @@ public class DisplayFragment extends Fragment {
 //                intent.putExtra("URLs",URLs);
 //                intent.putExtra("Key",key);
                 Bundle animation = ActivityOptions.makeSceneTransitionAnimation(
-                        getActivity(),view.findViewById(R.id.date_linear_layout), view.findViewById(R.id.date_linear_layout).getTransitionName()
+                        getActivity()
                 ).toBundle();
 
                 intent.putExtras(bundle);

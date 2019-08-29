@@ -16,7 +16,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:id="@+id/item_linear_layout">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -24,8 +25,7 @@
                     android:orientation="vertical"
                     android:layout_weight="2"
                     android:background="#03DAC6"
-                    android:id="@+id/date_linear_layout"
-                    android:transitionName="@string/listItem_to_gallery_transition">
+                    android:id="@+id/date_linear_layout">
 
                 <TextView
                         android:layout_width="match_parent"
@@ -66,12 +66,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:id="@+id/caption_text_view"
-                        android:text="Title"
+                        android:text="caption"
                         android:textColor="#000000"
                         android:textAlignment="center"
                         android:paddingTop="5dp"
-                        android:textAppearance="?android:textAppearanceLarge"/>
-
+                        android:textAppearance="?android:textAppearanceLarge">
+                    </TextView>
 
                 </RelativeLayout>
 

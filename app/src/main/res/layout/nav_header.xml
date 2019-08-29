@@ -10,21 +10,32 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:src="@mipmap/ic_launcher_round" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="10dp"
-        android:textColor="@android:color/white"
         android:layout_marginTop="10dp"
-        android:text="假装这里有一个标题" />
+
+        android:textColor="@android:color/white"
+        android:id="@+id/user_name"
+        android:textSize="32dp"
+        android:text="haha"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:textColor="@android:color/white"
-        android:id="@+id/user_name"
-        android:text="假装这里又有一个标题" />
+        android:layout_gravity="start"
+        android:layout_marginLeft="16dp"
+        android:text="假装这里有一个标题" />
+
+
 </LinearLayout>
