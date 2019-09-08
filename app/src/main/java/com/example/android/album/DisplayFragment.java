@@ -97,7 +97,8 @@ public class DisplayFragment extends Fragment {
         View view =inflater.inflate(R.layout.display_fragment,null);
 
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@"));
+        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@")).replaceAll("[\\p{P}]","");
+
 
 
         emptyView = (TextView) view.findViewById(R.id.empty_view);
