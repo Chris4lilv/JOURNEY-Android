@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -23,13 +24,15 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.TextView;
 
+import com.bumptech.glide.manager.LifecycleListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.DuplicateFormatFlagsException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     //TODO: listview 左边显示日期背景更换
     //TODO：让listview的每一个item透明度低一些
     //TODO：listview的title字体更换
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mUserName;
 
     private String journeyName;
-
+    public Boolean switchToPersonal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-
+        switchToPersonal = false;
         //This create the icon at the upper left corner that would change as navigation drawer open
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.caption_hint,R.string.cancel);
         mDrawerLayout.addDrawerListener(toggle);
@@ -66,23 +69,17 @@ public class MainActivity extends AppCompatActivity {
         fmManager.beginTransaction()
                 .add(R.id.display_fragment,displayFragment).commit();
 
-
         NavigationView nv_left = findViewById(R.id.navigation);
         View headerView = nv_left.getHeaderView(0);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        journeyName = sharedPreferences.getString("JourneyName", "Journey");
+        journeyName = sharedPreferences.getString("JourneyName", "journey");
 
         Menu menu = nv_left.getMenu();
-        SubMenu journeysMenu = menu.findItem(R.id.journeys_group).getSubMenu();
-        journeysMenu.add(journeyName).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                displayFragment.mWorkspace = journeyName;
-                displayFragment.changeWorkSpace();
-                return true;
-            }
-        });
+        final SubMenu journeysMenu = menu.findItem(R.id.journeys_group).getSubMenu();
+        final MenuItem newJourney = journeysMenu.add(0,100, 0, journeyName);
+        newJourney.setIcon(R.drawable.romance_heart_24);
+
 
         mUserName = headerView.findViewById(R.id.user_name);
         mUserName.setText(user.getDisplayName());
@@ -91,16 +88,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
+                    case 100:
+                        displayFragment.mWorkspace = journeyName;
+                        switchToPersonal = false;
+                        displayFragment.changeWorkSpace();
+                        newJourney.setIcon(R.drawable.romance_heart_24_filled);
+                        journeysMenu.getItem(0).setIcon(R.drawable.my_personal_icon_24);
+                        mDrawerLayout.closeDrawers();
+                        break;
                     case R.id.my_personal_journey:
                         displayFragment.mWorkspace = "personal";
+                        switchToPersonal = true;
                         displayFragment.changeWorkSpace();
+                        item.setIcon(R.drawable.my_personal_icon_filled_24);
+                        newJourney.setIcon(R.drawable.romance_heart_24);
+                        mDrawerLayout.closeDrawers();
                         break;
                     case R.id.nav_account_setting:
                         Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
                         startActivity(intentSettings);
                         finish();
                         break;
-                    case R.id.nav_logout://条目的ID
+                    case R.id.nav_logout:
                         mAuth.signOut();
                         Intent intent = new Intent(MainActivity.this, SignInActivity.class);
                         startActivity(intent);
@@ -110,12 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-
     }
-
-
-
 }
 
 

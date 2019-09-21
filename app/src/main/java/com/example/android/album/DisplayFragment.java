@@ -57,12 +57,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.w3c.dom.Text;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -92,8 +88,7 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     private String mCurrentUser;
     private String mDirectory;
-    protected String mWorkspace;
-
+    public String mWorkspace;
 
     @Nullable
     @Override
@@ -238,11 +233,12 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 return true;
             }
         });
-
-
-
         return view;
+
+
     }
+
+
 
     @Override
     public void onRefresh() {
@@ -311,6 +307,5 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
     }
-
-
 }
+

@@ -6,6 +6,7 @@
             <item
                 android:id="@+id/my_personal_journey"
                 android:title="My Personal"
+                android:icon="@drawable/my_personal_icon_filled_24"
                 />
         </menu>
 
