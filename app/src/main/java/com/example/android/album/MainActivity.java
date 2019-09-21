@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 displayFragment.mWorkspace = journeyName;
+                displayFragment.changeWorkSpace();
                 return true;
             }
         });
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.my_personal_journey:
                         displayFragment.mWorkspace = "personal";
+                        displayFragment.changeWorkSpace();
                         break;
                     case R.id.nav_account_setting:
                         Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
