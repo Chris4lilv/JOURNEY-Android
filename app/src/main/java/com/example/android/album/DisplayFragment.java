@@ -121,7 +121,7 @@ public class DisplayFragment extends Fragment {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseRef = mFirebaseDatabase.getReference();
         mFirebaseStorage = FirebaseStorage.getInstance();
-        mStorageReference = mFirebaseStorage.getReference().child(mDirectory);
+        mStorageReference = mFirebaseStorage.getReference().child(mDirectory).child(mWorkspace);
 
         //Fab animation component
         fabAdd = view.findViewById(R.id.fab_add);
@@ -291,6 +291,7 @@ public class DisplayFragment extends Fragment {
         Intent intent = new Intent(getActivity(), NewEventActivity.class);
         intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_X, revealX);
         intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_Y, revealY);
+        intent.putExtra("WorkSpace",mWorkspace);
 
         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
     }
