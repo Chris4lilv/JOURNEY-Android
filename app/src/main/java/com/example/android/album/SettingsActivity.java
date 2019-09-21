@@ -1,5 +1,6 @@
 package com.example.android.album;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,26 +48,26 @@ public class SettingsActivity extends AppCompatActivity {
             connection.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    final String email = newValue.toString();
-                    if(email.length() != 0){
-                        mFirebaseDatabase = FirebaseDatabase.getInstance();
-                        mDatabaseRef = mFirebaseDatabase.getReference();
-                        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.hasChild(email.substring(0, email.indexOf("@")))){
-                                    Toast.makeText(getActivity(), "User exists!", Toast.LENGTH_SHORT).show();
+                    final String workspace = newValue.toString().replaceAll("[\\p{P}]","");
 
-                                }else {
-                                    Toast.makeText(getActivity(), "User doesn't exist", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
+                    if(workspace.length() != 0){
+//                        mFirebaseDatabase = FirebaseDatabase.getInstance();
+//                        mDatabaseRef = mFirebaseDatabase.getReference();
+//                        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                            }
+//                        });
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("JourneyName", workspace);
+                        editor.apply();
                     }
                     return true;
                 }

@@ -87,8 +87,10 @@ public class DisplayFragment extends Fragment {
     private DatabaseReference mDatabaseRef;
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mStorageReference;
+
     private String mCurrentUser;
     private String mDirectory;
+    protected String mWorkspace;
 
 
     @Nullable
@@ -97,7 +99,8 @@ public class DisplayFragment extends Fragment {
         View view =inflater.inflate(R.layout.display_fragment,null);
 
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@")).replaceAll("[\\p{P}]","");
+        mDirectory = mCurrentUser.substring(0, mCurrentUser.indexOf("@")).replaceAll("[\\p{P}]","");
+        mWorkspace = "personal";
 
 
 
@@ -139,7 +142,7 @@ public class DisplayFragment extends Fragment {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()){
-            mDatabaseRef.child(mDirectory).addValueEventListener(new ValueEventListener() {
+            mDatabaseRef.child(mDirectory).child(mWorkspace).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     eventsList.clear();
