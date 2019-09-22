@@ -52,7 +52,7 @@ public class NewEventActivity extends AppCompatActivity {
     DatabaseReference myRef;
 
     private String mCurrentUser;
-    private String mDirectory;
+    public String mDirectory;
     protected String mWorkSpace;
 
     ArrayList<String> imageUri;
@@ -98,7 +98,8 @@ public class NewEventActivity extends AppCompatActivity {
         mWorkSpace = intent.getStringExtra("WorkSpace");
 
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        mDirectory = mCurrentUser.substring(0, mCurrentUser.indexOf("@")).replaceAll("[\\p{P}]","");
+        mDirectory = intent.getStringExtra("Directory");
+//        mDirectory = mCurrentUser.substring(0, mCurrentUser.indexOf("@")).replaceAll("[\\p{P}]","");
 
 
         //initialize storage, database and their reference

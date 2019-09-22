@@ -23,7 +23,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.manager.LifecycleListener;
 import com.google.android.material.navigation.NavigationView;
@@ -47,19 +49,23 @@ public class MainActivity extends AppCompatActivity{
     private String joinJourney;
     public Boolean switchToPersonal;
 
-    public NavigationView nv_left;
+    private MenuItem newJourney;
+
+    private Boolean checkJourney;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
+        final FirebaseUser user = mAuth.getCurrentUser();
 
         toolbar = findViewById(R.id.toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         switchToPersonal = false;
+        checkJourney = false;
 
         //This create the icon at the upper left corner that would change as navigation drawer open
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.caption_hint,R.string.cancel);
@@ -72,29 +78,45 @@ public class MainActivity extends AppCompatActivity{
         fmManager.beginTransaction()
                 .add(R.id.display_fragment,displayFragment).commit();
 
-        nv_left = findViewById(R.id.navigation);
+        NavigationView nv_left = findViewById(R.id.navigation);
         View headerView = nv_left.getHeaderView(0);
 
-        //Get journeyName from sharedPreference
+        Menu menu = nv_left.getMenu();
+        final SubMenu journeysMenu = menu.findItem(R.id.journeys_group).getSubMenu();
+
+        //Get journeyNames from sharedPreference
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         journeyName = sharedPreferences.getString("JourneyName", "journey");
         joinJourney = sharedPreferences.getString("JoinJourney", "join");
 
-        Menu menu = nv_left.getMenu();
-        final SubMenu journeysMenu = menu.findItem(R.id.journeys_group).getSubMenu();
-        final MenuItem newJourney = journeysMenu.add(0,100, 0, journeyName);
-        newJourney.setIcon(R.drawable.romance_heart_24);
+        if(journeyName.length() != 0 || joinJourney.length() != 0){
+            if(journeyName.length() != 0){
+                newJourney = journeysMenu.add(0,100, 0, journeyName);
+                newJourney.setIcon(R.drawable.romance_heart_24);
+            }
+            if(joinJourney.length() != 0){
+                newJourney = journeysMenu.add(0,101, 0, joinJourney.substring(joinJourney.indexOf("/") + 1));
+                newJourney.setIcon(R.drawable.romance_heart_24);
+            }
+        }
 
+
+        //check if a journey is added
+        if(journeysMenu.size() > 1){
+            checkJourney = true;
+        }
 
         mUserName = headerView.findViewById(R.id.user_name);
         mUserName.setText(user.getDisplayName());
+
 
         nv_left.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case 100:
-                        displayFragment.mWorkspace = journeyName;
+                    case 101:
+                        displayFragment.mWorkspace = joinJourney.substring(joinJourney.indexOf("/") + 1);
+                        displayFragment.mDirectory = joinJourney.substring(0, joinJourney.indexOf("/"));
                         switchToPersonal = false;
                         displayFragment.changeWorkSpace();
                         newJourney.setIcon(R.drawable.romance_heart_24_filled);
@@ -107,12 +129,12 @@ public class MainActivity extends AppCompatActivity{
                             }
                         }, 300);
                         break;
-                    case R.id.my_personal_journey:
-                        displayFragment.mWorkspace = "personal";
-                        switchToPersonal = true;
+                    case 100:
+                        displayFragment.mWorkspace = journeyName;
+                        switchToPersonal = false;
                         displayFragment.changeWorkSpace();
-                        item.setIcon(R.drawable.my_personal_icon_filled_24);
-                        newJourney.setIcon(R.drawable.romance_heart_24);
+                        newJourney.setIcon(R.drawable.romance_heart_24_filled);
+                        journeysMenu.getItem(0).setIcon(R.drawable.my_personal_icon_24);
                         Handler handler1 = new Handler();
                         handler1.postDelayed(new Runnable() {
                             @Override
@@ -121,8 +143,26 @@ public class MainActivity extends AppCompatActivity{
                             }
                         }, 300);
                         break;
+                    case R.id.my_personal_journey:
+                        displayFragment.mDirectory = user.getEmail().substring(0, user.getEmail().indexOf("@")).replaceAll("[\\p{P}]","");
+                        displayFragment.mWorkspace = "personal";
+                        switchToPersonal = true;
+                        displayFragment.changeWorkSpace();
+                        item.setIcon(R.drawable.my_personal_icon_filled_24);
+                        if(newJourney != null){
+                            newJourney.setIcon(R.drawable.romance_heart_24);
+                        }
+                        Handler handler2 = new Handler();
+                        handler2.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDrawerLayout.closeDrawers();
+                            }
+                        }, 300);
+                        break;
                     case R.id.nav_account_setting:
                         Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                        intentSettings.putExtra("checkJourney", checkJourney);
                         startActivity(intentSettings);
                         finish();
                         break;

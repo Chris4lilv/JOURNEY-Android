@@ -60,7 +60,7 @@ import com.google.firebase.storage.UploadTask;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class DisplayFragment extends Fragment{
 
     private static int RC_GALLERY = 0;
     private static final int RC_CONGRATS =  2;
@@ -86,8 +86,8 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mStorageReference;
 
-    private String mCurrentUser;
-    private String mDirectory;
+    public String mCurrentUser;
+    public String mDirectory;
     public String mWorkspace;
 
     @Nullable
@@ -102,7 +102,6 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
 
         emptyView = (TextView) view.findViewById(R.id.empty_view);
-        swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swiperefresh);
 
         loadingIndicator = (ProgressBar)view.findViewById(R.id.loading_indicator);
 
@@ -238,13 +237,6 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     }
 
-
-
-    @Override
-    public void onRefresh() {
-        changeWorkSpace();
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == RC_GALLERY){
@@ -304,6 +296,7 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
         intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_X, revealX);
         intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_Y, revealY);
         intent.putExtra("WorkSpace",mWorkspace);
+        intent.putExtra("Directory", mDirectory);
 
         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
     }

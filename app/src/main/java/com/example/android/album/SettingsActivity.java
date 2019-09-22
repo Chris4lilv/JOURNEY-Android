@@ -1,5 +1,6 @@
 package com.example.android.album;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -22,6 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    public Boolean checkJourney;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,11 +37,17 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        Intent intent = getIntent();
+        checkJourney = intent.getBooleanExtra("checkJourney", false);
     }
     public static class SettingsFragment extends PreferenceFragmentCompat {
-        public FirebaseDatabase mFirebaseDatabase;
-        public DatabaseReference mDatabaseRef;
+        private FirebaseDatabase mFirebaseDatabase;
+        private DatabaseReference mDatabaseRef;
         SharedPreferences sharedPreferences;
+
+        private String userName;
+        private String workspace;
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
@@ -46,7 +55,16 @@ public class SettingsActivity extends AppCompatActivity {
 
             //Initialization
             final EditTextPreference journey = findPreference("startJourney");
-            EditTextPreference joinJourney = findPreference("joinJourney");
+            final EditTextPreference joinJourney = findPreference("joinJourney");
+
+
+            if(((SettingsActivity)getActivity()).checkJourney){
+//                journey.setEnabled(false);
+//                joinJourney.setEnabled(false);
+            }else{
+                journey.setEnabled(true);
+                joinJourney.setEnabled(true);
+            }
 
             //Create a Journey
             journey.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -64,12 +82,20 @@ public class SettingsActivity extends AppCompatActivity {
             joinJourney.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    String entireInput = newValue.toString();
+                    final String entireInput = newValue.toString();
                     //Split the input
-                    final String userName = entireInput.substring(0, entireInput.indexOf("/")).replaceAll("[\\p{P}]","");
-                    final String workspace = entireInput.substring(entireInput.indexOf("/") + 1);
+                    if(entireInput.contains("/")){
+                        userName = entireInput.substring(0, entireInput.indexOf("/")).replaceAll("[\\p{P}]","");
+                        workspace = entireInput.substring(entireInput.indexOf("/") + 1);
+                    }else if(entireInput.length() != 0){
+                        Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
+                    }else{
+                        userName = "";
+                        workspace = "";
+                    }
 
-                    if(userName.length() != 0){
+
+                    if(entireInput.length() != 0){
                         mFirebaseDatabase = FirebaseDatabase.getInstance();
                         mDatabaseRef = mFirebaseDatabase.getReference();
                         mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -80,6 +106,9 @@ public class SettingsActivity extends AppCompatActivity {
                                 }else{
                                     if(dataSnapshot.child(userName).hasChild(workspace)){
                                         Toast.makeText(getContext(), "Journey exists!", Toast.LENGTH_SHORT).show();
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("JoinJourney", entireInput);
+                                        editor.apply();
                                     }else{
                                         Toast.makeText(getContext(), "Journey doesn't exists", Toast.LENGTH_SHORT).show();
                                     }
@@ -91,11 +120,12 @@ public class SettingsActivity extends AppCompatActivity {
 
                             }
                         });
-
+                    }else{
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("JoinJourney", workspace);
+                        editor.putString("JoinJourney", entireInput);
                         editor.apply();
                     }
+
                     return true;
                 }
             });

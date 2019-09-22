@@ -10,17 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/swiperefresh">
-            <ListView
+        <ListView
                 android:id="@+id/listView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:divider="@null">
-            </ListView>
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </ListView>
 
         <TextView
             android:id="@+id/empty_view"
