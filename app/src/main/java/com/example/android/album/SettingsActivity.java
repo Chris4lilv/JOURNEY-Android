@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.DialogPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -37,45 +38,68 @@ public class SettingsActivity extends AppCompatActivity {
     public static class SettingsFragment extends PreferenceFragmentCompat {
         public FirebaseDatabase mFirebaseDatabase;
         public DatabaseReference mDatabaseRef;
-
+        SharedPreferences sharedPreferences;
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+            //Initialization
+            final EditTextPreference journey = findPreference("startJourney");
+            EditTextPreference joinJourney = findPreference("joinJourney");
 
-            //Send out connection request to the intended user
-            final EditTextPreference connection = findPreference("connection");
-            connection.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            //Create a Journey
+            journey.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String workspace = newValue.toString().replaceAll("[\\p{P}]","");
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("JourneyName", workspace);
+                    editor.apply();
+                    return true;
+                }
+            });
 
-                    if(workspace.length() != 0){
-//                        mFirebaseDatabase = FirebaseDatabase.getInstance();
-//                        mDatabaseRef = mFirebaseDatabase.getReference();
-//                        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                            }
-//                        });
-                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            //Join a Journey
+            joinJourney.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    String entireInput = newValue.toString();
+                    //Split the input
+                    final String userName = entireInput.substring(0, entireInput.indexOf("/")).replaceAll("[\\p{P}]","");
+                    final String workspace = entireInput.substring(entireInput.indexOf("/") + 1);
+
+                    if(userName.length() != 0){
+                        mFirebaseDatabase = FirebaseDatabase.getInstance();
+                        mDatabaseRef = mFirebaseDatabase.getReference();
+                        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if(!dataSnapshot.hasChild(userName)){
+                                    Toast.makeText(getContext(), "User doesn't exist", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    if(dataSnapshot.child(userName).hasChild(workspace)){
+                                        Toast.makeText(getContext(), "Journey exists!", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(getContext(), "Journey doesn't exists", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("JourneyName", workspace);
+                        editor.putString("JoinJourney", workspace);
                         editor.apply();
                     }
                     return true;
                 }
             });
-
-
-
-
         }
     }
 }
+

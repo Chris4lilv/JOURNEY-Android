@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -43,7 +44,10 @@ public class MainActivity extends AppCompatActivity{
     private TextView mUserName;
 
     private String journeyName;
+    private String joinJourney;
     public Boolean switchToPersonal;
+
+    public NavigationView nv_left;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,24 +60,25 @@ public class MainActivity extends AppCompatActivity{
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         switchToPersonal = false;
+
         //This create the icon at the upper left corner that would change as navigation drawer open
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.caption_hint,R.string.cancel);
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-
+        //Add displayFragment into FragmentManager
         final DisplayFragment displayFragment = new DisplayFragment();
-
         FragmentManager fmManager = getSupportFragmentManager();
-
         fmManager.beginTransaction()
                 .add(R.id.display_fragment,displayFragment).commit();
 
-        NavigationView nv_left = findViewById(R.id.navigation);
+        nv_left = findViewById(R.id.navigation);
         View headerView = nv_left.getHeaderView(0);
 
+        //Get journeyName from sharedPreference
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         journeyName = sharedPreferences.getString("JourneyName", "journey");
+        joinJourney = sharedPreferences.getString("JoinJourney", "join");
 
         Menu menu = nv_left.getMenu();
         final SubMenu journeysMenu = menu.findItem(R.id.journeys_group).getSubMenu();
@@ -94,7 +99,13 @@ public class MainActivity extends AppCompatActivity{
                         displayFragment.changeWorkSpace();
                         newJourney.setIcon(R.drawable.romance_heart_24_filled);
                         journeysMenu.getItem(0).setIcon(R.drawable.my_personal_icon_24);
-                        mDrawerLayout.closeDrawers();
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDrawerLayout.closeDrawers();
+                            }
+                        }, 300);
                         break;
                     case R.id.my_personal_journey:
                         displayFragment.mWorkspace = "personal";
@@ -102,7 +113,13 @@ public class MainActivity extends AppCompatActivity{
                         displayFragment.changeWorkSpace();
                         item.setIcon(R.drawable.my_personal_icon_filled_24);
                         newJourney.setIcon(R.drawable.romance_heart_24);
-                        mDrawerLayout.closeDrawers();
+                        Handler handler1 = new Handler();
+                        handler1.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDrawerLayout.closeDrawers();
+                            }
+                        }, 300);
                         break;
                     case R.id.nav_account_setting:
                         Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);

@@ -20,10 +20,15 @@
     <PreferenceCategory app:title="@string/journey_header">
 
         <EditTextPreference
-            app:key="connection"
+            app:key="startJourney"
             app:title="@string/new_journey_title"
             app:useSimpleSummaryProvider="true"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress" />
+        <EditTextPreference
+            app:key="joinJourney"
+            android:title="Join a journey"
+            app:useSimpleSummaryProvider="true"
+            android:hint="UserEmail/JourneyName"/>
 
         <ListPreference
             app:defaultValue="reply"
