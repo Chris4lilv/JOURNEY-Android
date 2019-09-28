@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity{
 
         //Get journeyNames from sharedPreference
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        journeyName = sharedPreferences.getString("JourneyName", "journey");
-        joinJourney = sharedPreferences.getString("JoinJourney", "join");
+        journeyName = sharedPreferences.getString("JourneyName", "");
+        joinJourney = sharedPreferences.getString("JoinJourney", "");
 
         if(journeyName.length() != 0 || joinJourney.length() != 0){
             if(journeyName.length() != 0){
