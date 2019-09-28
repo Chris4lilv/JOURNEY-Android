@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity{
                 switch (item.getItemId()) {
                     case 101:
                         displayFragment.mWorkspace = joinJourney.substring(joinJourney.indexOf("/") + 1);
-                        displayFragment.mDirectory = joinJourney.substring(0, joinJourney.indexOf("/"));
+                        displayFragment.mDirectory = joinJourney.substring(0, joinJourney.indexOf("/")).replaceAll("[\\p{P}]", "");
                         switchToPersonal = false;
                         displayFragment.changeWorkSpace();
                         newJourney.setIcon(R.drawable.romance_heart_24_filled);
@@ -167,6 +167,9 @@ public class MainActivity extends AppCompatActivity{
                         finish();
                         break;
                     case R.id.nav_logout:
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                        sharedPreferences.edit().clear().apply();
+
                         mAuth.signOut();
                         Intent intent = new Intent(MainActivity.this, SignInActivity.class);
                         startActivity(intent);

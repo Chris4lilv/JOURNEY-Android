@@ -15,15 +15,21 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.auth.User;
 
 public class SettingsActivity extends AppCompatActivity {
 
     public Boolean checkJourney;
+    private static FirebaseDatabase mFirebaseDatabase;
+    private static DatabaseReference mDatabaseRef;
+    private static SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +48,12 @@ public class SettingsActivity extends AppCompatActivity {
         checkJourney = intent.getBooleanExtra("checkJourney", false);
     }
     public static class SettingsFragment extends PreferenceFragmentCompat {
-        private FirebaseDatabase mFirebaseDatabase;
-        private DatabaseReference mDatabaseRef;
-        SharedPreferences sharedPreferences;
+
 
         private String userName;
         private String workspace;
+        private FirebaseUser user;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
@@ -57,23 +63,50 @@ public class SettingsActivity extends AppCompatActivity {
             final EditTextPreference journey = findPreference("startJourney");
             final EditTextPreference joinJourney = findPreference("joinJourney");
 
+            //Initialize Firebase
+            mFirebaseDatabase = FirebaseDatabase.getInstance();
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            mDatabaseRef = mFirebaseDatabase.getReference().child(user.getEmail().substring(0, user.getEmail().indexOf("@")).replaceAll("[\\p{P}]", "")).child("preference");
+            mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()){
+                            com.example.android.album.Preference preference =eventSnapshot.getValue(com.example.android.album.Preference.class);
+                            journey.setText(preference.getPreferenceStart());
+                            journey.callChangeListener(preference.getPreferenceStart());
+                            joinJourney.setText(preference.getPreferenceJoin());
+                            joinJourney.callChangeListener(preference.getPreferenceJoin());
 
-            if(((SettingsActivity)getActivity()).checkJourney){
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            if (((SettingsActivity) getActivity()).checkJourney) {
 //                journey.setEnabled(false);
 //                joinJourney.setEnabled(false);
-            }else{
+            } else {
                 journey.setEnabled(true);
                 joinJourney.setEnabled(true);
             }
+
+
 
             //Create a Journey
             journey.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    final String workspace = newValue.toString().replaceAll("[\\p{P}]","");
+                    final String workspace = newValue.toString().replaceAll("[\\p{P}]", "");
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("JourneyName", workspace);
                     editor.apply();
+                    pushPreference();
                     return true;
                 }
             });
@@ -84,32 +117,31 @@ public class SettingsActivity extends AppCompatActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String entireInput = newValue.toString();
                     //Split the input
-                    if(entireInput.contains("/")){
-                        userName = entireInput.substring(0, entireInput.indexOf("/")).replaceAll("[\\p{P}]","");
+                    if (entireInput.contains("/")) {
+                        userName = entireInput.substring(0, entireInput.indexOf("/")).replaceAll("[\\p{P}]", "");
                         workspace = entireInput.substring(entireInput.indexOf("/") + 1);
-                    }else if(entireInput.length() != 0){
-                        Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
-                    }else{
-                        userName = "";
-                        workspace = "";
+                    } else {
+                        userName = " ";
+                        workspace = " ";
                     }
 
 
-                    if(entireInput.length() != 0){
-                        mFirebaseDatabase = FirebaseDatabase.getInstance();
+                    if (entireInput.length() != 0) {
                         mDatabaseRef = mFirebaseDatabase.getReference();
                         mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(!dataSnapshot.hasChild(userName)){
+                                if (!dataSnapshot.hasChild(userName)) {
                                     Toast.makeText(getContext(), "User doesn't exist", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    if(dataSnapshot.child(userName).hasChild(workspace)){
+                                    joinJourney.setText("");
+                                } else {
+                                    if (dataSnapshot.child(userName).hasChild(workspace)) {
                                         Toast.makeText(getContext(), "Journey exists!", Toast.LENGTH_SHORT).show();
                                         SharedPreferences.Editor editor = sharedPreferences.edit();
                                         editor.putString("JoinJourney", entireInput);
                                         editor.apply();
-                                    }else{
+                                        pushPreference();
+                                    } else {
                                         Toast.makeText(getContext(), "Journey doesn't exists", Toast.LENGTH_SHORT).show();
                                     }
                                 }
@@ -120,7 +152,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                             }
                         });
-                    }else{
+                    } else {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("JoinJourney", entireInput);
                         editor.apply();
@@ -130,6 +162,17 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
         }
+        public void pushPreference() {
+            String preferenceOne = sharedPreferences.getString("JourneyName", "");
+            String preferenceTwo = sharedPreferences.getString("JoinJourney", "");
+            mDatabaseRef = mFirebaseDatabase.getReference().child(user.getEmail().substring(0, user.getEmail().indexOf("@")).replaceAll("[\\p{P}]", "")).child("preference");
+            mDatabaseRef.removeValue();
+            mDatabaseRef.push().setValue(new com.example.android.album.Preference(preferenceOne, preferenceTwo));
+        }
+
     }
+
+
 }
+
 
