@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Journeys"
+        android:id="@+id/journeys_group">
+        <menu>
+            <item
+                android:id="@+id/my_personal_journey"
+                android:title="My Personal"
+                android:icon="@drawable/my_personal_icon_filled_24"
+                />
+        </menu>
 
-    <item android:title="Account">
+    </item>
+
+    <item android:title="Account"
+        android:id="@+id/account_group">
         <menu>
             <item
                 android:id="@+id/nav_account_setting"

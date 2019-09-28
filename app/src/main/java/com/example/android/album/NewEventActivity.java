@@ -1,6 +1,7 @@
 package com.example.android.album;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
@@ -49,8 +50,10 @@ public class NewEventActivity extends AppCompatActivity {
     StorageReference mStorageReference;
     FirebaseDatabase database;
     DatabaseReference myRef;
+
     private String mCurrentUser;
-    private String mDirectory;
+    public String mDirectory;
+    protected String mWorkSpace;
 
     ArrayList<String> imageUri;
 
@@ -80,10 +83,8 @@ public class NewEventActivity extends AppCompatActivity {
 
     //This parts take care of circular revelation
     View rootLayout;
-
     private int revealX;
     private int revealY;
-
     public static final String EXTRA_CIRCULAR_REVEAL_X = "EXTRA_CIRCULAR_REVEAL_X";
     public static final String EXTRA_CIRCULAR_REVEAL_Y = "EXTRA_CIRCULAR_REVEAL_Y";
 
@@ -93,16 +94,19 @@ public class NewEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
 
-        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@"));
+        final Intent intent = getIntent();
+        mWorkSpace = intent.getStringExtra("WorkSpace");
 
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        mDirectory = intent.getStringExtra("Directory");
+//        mDirectory = mCurrentUser.substring(0, mCurrentUser.indexOf("@")).replaceAll("[\\p{P}]","");
 
 
         //initialize storage, database and their reference
         mStorage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
-        mStorageReference = mStorage.getReference().child(mDirectory);
+        mStorageReference = mStorage.getReference().child(mDirectory).child(mWorkSpace);
 
         imageUri = new ArrayList<>();
 
@@ -215,7 +219,7 @@ public class NewEventActivity extends AppCompatActivity {
                         String cap = caption.getText().toString();
                         String date = year + month + day;
                         Event event = new Event(imageUri,cap,date);
-                        myRef.child(mDirectory).push().setValue(event);
+                        myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
                         //kill the activity and remove it from the stack
                         onBackPressed();
                     }
@@ -235,8 +239,6 @@ public class NewEventActivity extends AppCompatActivity {
         //Hide status and navigation bar
         Window window = NewEventActivity.this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
-        final Intent intent = getIntent();
 
         rootLayout = findViewById(R.id.root_layout);
 
@@ -272,42 +274,41 @@ public class NewEventActivity extends AppCompatActivity {
 
     //get the image from the method call startIntentForResult and upload it to Firebase storage
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if(RESULT_OK != resultCode){
             return;
         }
         if (requestCode == RC_PHOTO_PICKER) {
             Uri selectedImageUri = data.getData();
-                if (selectedImageUri != null){
-                    final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
-                    photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                        @Override
-                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                            if (!task.isSuccessful()) {
-                                throw task.getException();
-                            }
-                            return photoRef.getDownloadUrl();
+            if (selectedImageUri != null){
+                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
+                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
                         }
-                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Uri> task) {
-                            if (task.isSuccessful()) {
-                                Uri downloadUri = task.getResult();
-                                imageUri.add(downloadUri.toString());
-                                uploadImageButton.setSpeed(2);
-                                uploadImageButton.playAnimation();
+                        return photoRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            imageUri.add(downloadUri.toString());
+                            uploadImageButton.setSpeed(2);
+                            uploadImageButton.playAnimation();
 
-                            } else {
-                                Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
+                        } else {
+                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    }
+                });
 
-                }
+            }
         }
     }
-
 
     protected void revealActivity(int x, int y) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

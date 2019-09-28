@@ -35,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.Continuation;
@@ -56,14 +57,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.w3c.dom.Text;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-public class DisplayFragment extends Fragment {
+public class DisplayFragment extends Fragment{
 
     private static int RC_GALLERY = 0;
     private static final int RC_CONGRATS =  2;
@@ -77,6 +74,7 @@ public class DisplayFragment extends Fragment {
     private TextView emptyView;
     private ProgressBar loadingIndicator;
     private FloatingActionButton fabAdd;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private static final int RC_PHOTO_PICKER =  2;
 
@@ -87,9 +85,10 @@ public class DisplayFragment extends Fragment {
     private DatabaseReference mDatabaseRef;
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mStorageReference;
-    private String mCurrentUser;
-    private String mDirectory;
 
+    public String mCurrentUser;
+    public String mDirectory;
+    public String mWorkspace;
 
     @Nullable
     @Override
@@ -97,7 +96,9 @@ public class DisplayFragment extends Fragment {
         View view =inflater.inflate(R.layout.display_fragment,null);
 
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        mDirectory = mCurrentUser.substring(0, FirebaseAuth.getInstance().getCurrentUser().getEmail().indexOf("@"));
+        mDirectory = mCurrentUser.substring(0, mCurrentUser.indexOf("@")).replaceAll("[\\p{P}]","");
+        mWorkspace = "personal";
+
 
 
         emptyView = (TextView) view.findViewById(R.id.empty_view);
@@ -117,7 +118,7 @@ public class DisplayFragment extends Fragment {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseRef = mFirebaseDatabase.getReference();
         mFirebaseStorage = FirebaseStorage.getInstance();
-        mStorageReference = mFirebaseStorage.getReference().child(mDirectory);
+        mStorageReference = mFirebaseStorage.getReference().child(mDirectory).child(mWorkspace);
 
         //Fab animation component
         fabAdd = view.findViewById(R.id.fab_add);
@@ -138,30 +139,7 @@ public class DisplayFragment extends Fragment {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()){
-            mDatabaseRef.child(mDirectory).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    eventsList.clear();
-                    eventKeyList.clear();
-                    for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()){
-                        Event event = eventSnapshot.getValue(Event.class);
-                        String eventKey = eventSnapshot.getKey();
-                        eventKeyList.add(eventKey);
-                        eventsList.add(event);
-                    }
-                    //Hide the loading indicator after the first time loading
-                    loadingIndicator.setVisibility(View.GONE);
-
-                    listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
-                    mListView.setAdapter(listViewAdapter);
-                    listViewAdapter.notifyDataSetChanged();
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+           changeWorkSpace();
         }else{
             //Hide the loading indicator before showing Internet connection error
             View loadingIndicator = view.findViewById(R.id.loading_indicator);
@@ -216,7 +194,7 @@ public class DisplayFragment extends Fragment {
                         Event currentEvent = eventsList.get(position);
                         //get the corresponding key and remove event in database
                         String key = eventKeyList.get(position);
-                        mDatabaseRef.child(mDirectory).child(key).removeValue();
+                        mDatabaseRef.child(mDirectory).child(mWorkspace).child(key).removeValue();
                         eventsList.remove(position);
 
                         //remove the image related to this event in storage
@@ -254,12 +232,10 @@ public class DisplayFragment extends Fragment {
                 return true;
             }
         });
-
-
-
         return view;
-    }
 
+
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -275,6 +251,38 @@ public class DisplayFragment extends Fragment {
     }
 
     /**
+     * Change to corresponding workspace after button on navigation view is pressed
+     */
+    public void changeWorkSpace(){
+        mStorageReference = mFirebaseStorage.getReference().child(mDirectory).child(mWorkspace);
+
+        mDatabaseRef.child(mDirectory).child(mWorkspace).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                eventsList.clear();
+                eventKeyList.clear();
+                for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()){
+                    Event event = eventSnapshot.getValue(Event.class);
+                    String eventKey = eventSnapshot.getKey();
+                    eventKeyList.add(eventKey);
+                    eventsList.add(event);
+                }
+                //Hide the loading indicator after the first time loading
+                loadingIndicator.setVisibility(View.GONE);
+
+                listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
+                mListView.setAdapter(listViewAdapter);
+                listViewAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /**
      * Display @activity_new_event using FAB with circular reveal animation
      */
     public void presentActivity(View view) {
@@ -287,9 +295,10 @@ public class DisplayFragment extends Fragment {
         Intent intent = new Intent(getActivity(), NewEventActivity.class);
         intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_X, revealX);
         intent.putExtra(NewEventActivity.EXTRA_CIRCULAR_REVEAL_Y, revealY);
+        intent.putExtra("WorkSpace",mWorkspace);
+        intent.putExtra("Directory", mDirectory);
 
         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
     }
-
-
 }
+
