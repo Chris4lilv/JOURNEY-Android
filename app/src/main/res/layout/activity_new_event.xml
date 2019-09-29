@@ -7,6 +7,20 @@
     android:id="@+id/root_layout"
     android:background="@color/colorPrimary">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dateTextView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="click"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="date"
+        android:id="@+id/dateSelect"/>
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

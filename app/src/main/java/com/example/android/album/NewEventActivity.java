@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,10 +21,8 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,11 +36,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 
-public class NewEventActivity extends AppCompatActivity {
+public class NewEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private static final int RC_PHOTO_PICKER =  2;
 
@@ -62,22 +63,14 @@ public class NewEventActivity extends AppCompatActivity {
     LottieAnimationView uploadImageButton;
     LottieAnimationView createEventButton;
 
-    Spinner yearSpinner;
-    Spinner monthSpinner;
-    Spinner daySpinner;
-
-    ArrayList<String> yearList;
-    ArrayList<String> monthList;
-    ArrayList<String> dayList;
-
-    String year = "";
-    String month = "";
-    String day = "";
+    String yearSelected = "";
+    String monthSelected = "";
+    String daySelected = "";
     boolean selectionOfCreateEventButton = false;
 
-    ArrayAdapter<String> dayAdapter;
-    ArrayAdapter<String> monthAdapter;
-    ArrayAdapter<String> yearAdapter;
+    private DatePickerDialog dpd;
+    private TextView dateTextView;
+    private Button dateSelect;
 
     ArrayList<String> THIRTY_ONE_DAYS = new ArrayList<>(Arrays.asList("01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"));
 
@@ -93,6 +86,9 @@ public class NewEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
+
+        dateTextView = findViewById(R.id.dateTextView);
+        dateSelect = findViewById(R.id.dateSelect);
 
         final Intent intent = getIntent();
         mWorkSpace = intent.getStringExtra("WorkSpace");
@@ -114,82 +110,6 @@ public class NewEventActivity extends AppCompatActivity {
 
         uploadImageButton = findViewById(R.id.upload_image);
         createEventButton = findViewById(R.id.create_event);
-
-        //initialize spinner
-        yearSpinner = (Spinner) findViewById(R.id.year);
-        monthSpinner = (Spinner)findViewById(R.id.month);
-        daySpinner = (Spinner)findViewById(R.id.day);
-
-        //initialize Arraylist
-        yearList = new ArrayList<String>();
-        monthList = new ArrayList<String>(Arrays.asList("01","02","03","04","05","06","07","08","09","10","11","12"));
-        dayList = new ArrayList<String>(THIRTY_ONE_DAYS);
-
-
-        //fill the yearList
-        for(int i = 2019; i < 2050; i++){
-            yearList.add(Integer.toString(i));
-        }
-        // Create an ArrayAdapter for year
-        yearAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,yearList);
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        yearSpinner.setAdapter(yearAdapter);
-
-        //Create an ArrayAdapter for month
-        monthAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, monthList);
-        monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        monthSpinner.setAdapter(monthAdapter);
-
-        //Create an ArrayAdapter for month
-        dayAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,dayList);
-        dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        daySpinner.setAdapter(dayAdapter);
-
-       yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-           @Override
-           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-               year = parent.getItemAtPosition(position).toString();
-           }
-
-           @Override
-           public void onNothingSelected(AdapterView<?> parent) {
-
-           }
-       });
-
-        monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String currentItem = parent.getItemAtPosition(position).toString();
-                month = currentItem;
-                if(currentItem.equals("02")){
-                    dayList.subList(0,27);
-                    dayAdapter.notifyDataSetChanged();
-                }else if(currentItem.equals(monthList.get(4)) || currentItem.equals(monthList.get(5)) || currentItem.equals(monthList.get(8)) || currentItem.equals(monthList.get(10))){
-                    dayList.subList(0,29);
-                    dayAdapter.notifyDataSetChanged();
-                }else{
-                    dayList = THIRTY_ONE_DAYS;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        daySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                day = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,7 +137,7 @@ public class NewEventActivity extends AppCompatActivity {
 
                         //get caption and date
                         String cap = caption.getText().toString();
-                        String date = year + month + day;
+                        String date = yearSelected + monthSelected + daySelected;
                         Event event = new Event(imageUri,cap,date);
                         myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
                         //kill the activity and remove it from the stack
@@ -226,6 +146,33 @@ public class NewEventActivity extends AppCompatActivity {
                 });
 
 
+            }
+        });
+
+        dateSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar now = Calendar.getInstance();
+                if (dpd == null) {
+                    dpd = DatePickerDialog.newInstance(
+                            NewEventActivity.this,
+                            now.get(Calendar.YEAR),
+                            now.get(Calendar.MONTH),
+                            now.get(Calendar.DAY_OF_MONTH)
+                    );
+                } else {
+                    dpd.initialize(
+                            NewEventActivity.this,
+                            now.get(Calendar.YEAR),
+                            now.get(Calendar.MONTH),
+                            now.get(Calendar.DAY_OF_MONTH)
+                    );
+                }
+                dpd.setOnCancelListener(dialog -> {
+                    Log.d("DatePickerDialog", "Dialog was cancelled");
+                    dpd = null;
+                });
+                dpd.show(getSupportFragmentManager(), "Datepickerdialog");
             }
         });
 
@@ -264,12 +211,6 @@ public class NewEventActivity extends AppCompatActivity {
         } else {
             rootLayout.setVisibility(View.VISIBLE);
         }
-
-
-
-
-
-
     }
 
     //get the image from the method call startIntentForResult and upload it to Firebase storage
@@ -349,7 +290,22 @@ public class NewEventActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        String a = "0" + (monthOfYear + 1);
+        String date = "You picked the following date: "+dayOfMonth+"/"+ a +"/"+year;
+        dateTextView.setText(date);
+        yearSelected = Integer.toString(year);
+        monthSelected = Integer.toString(monthOfYear + 1);
+        if(monthOfYear + 1 < 10){
+            monthSelected = "0" + monthSelected;
+        }
+        daySelected = Integer.toString(dayOfMonth);
+        if(dayOfMonth < 10){
+            daySelected = "0" + daySelected;
+        }
+        dpd = null;
+    }
 
     @Override
     public void onBackPressed() {
