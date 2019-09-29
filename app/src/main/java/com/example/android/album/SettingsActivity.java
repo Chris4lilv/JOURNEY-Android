@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private String userName;
         private String workspace;
-        private FirebaseUser user;
+        private static FirebaseUser user;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -140,7 +140,6 @@ public class SettingsActivity extends AppCompatActivity {
                                         SharedPreferences.Editor editor = sharedPreferences.edit();
                                         editor.putString("JoinJourney", entireInput);
                                         editor.apply();
-                                        pushPreference();
                                     } else {
                                         Toast.makeText(getContext(), "Journey doesn't exists", Toast.LENGTH_SHORT).show();
                                     }
@@ -162,7 +161,7 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
         }
-        public void pushPreference() {
+        public static void pushPreference() {
             String preferenceOne = sharedPreferences.getString("JourneyName", "");
             String preferenceTwo = sharedPreferences.getString("JoinJourney", "");
             mDatabaseRef = mFirebaseDatabase.getReference().child(user.getEmail().substring(0, user.getEmail().indexOf("@")).replaceAll("[\\p{P}]", "")).child("preference");
@@ -172,7 +171,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        SettingsFragment.pushPreference();
+    }
 }
 
 
