@@ -30,40 +30,12 @@
         android:layout_marginRight="50dp"
         android:id="@+id/caption"/>
 
-    <Spinner
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/year"
-        android:layout_toStartOf="@id/month"
-        android:layout_below="@+id/caption"
-        android:layout_marginTop="30dp">
-    </Spinner>
-
-    <Spinner
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/month"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/caption"
-        android:layout_marginTop="30dp">
-    </Spinner>
-
-    <Spinner
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/day"
-        android:layout_toEndOf="@+id/month"
-        android:layout_below="@+id/caption"
-        android:layout_marginTop="30dp">
-
-    </Spinner>
-
     <com.airbnb.lottie.LottieAnimationView
         android:layout_width="200dp"
         android:layout_height="100dp"
         android:layout_centerHorizontal="true"
         android:id="@+id/upload_image"
-        android:layout_below="@+id/month"
+        android:layout_below="@+id/caption"
         android:layout_marginTop="100dp"
         app:lottie_rawRes="@raw/submitted"
         android:scaleType="centerInside"

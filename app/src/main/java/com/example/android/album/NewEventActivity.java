@@ -125,27 +125,29 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createEventButton.playAnimation();
-                createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        //Send back data whether this button is clicked
-                        selectionOfCreateEventButton = true;
-                        Intent intent = new Intent();
-                        intent.putExtra("selection_of_create_event_button", selectionOfCreateEventButton);
-                        setResult(Activity.RESULT_OK, intent);
+                if(yearSelected.length() == 0 || monthSelected.length() == 0 || daySelected.length() == 0){
+                    Toast.makeText(NewEventActivity.this, "Did you forget to pick date?", Toast.LENGTH_SHORT).show();
+                }else{
+                    createEventButton.playAnimation();
+                    createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            //Send back data whether this button is clicked
+                            selectionOfCreateEventButton = true;
+                            Intent intent = new Intent();
+                            intent.putExtra("selection_of_create_event_button", selectionOfCreateEventButton);
+                            setResult(Activity.RESULT_OK, intent);
 
-                        //get caption and date
-                        String cap = caption.getText().toString();
-                        String date = yearSelected + monthSelected + daySelected;
-                        Event event = new Event(imageUri,cap,date);
-                        myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
-                        //kill the activity and remove it from the stack
-                        onBackPressed();
-                    }
-                });
-
-
+                            //get caption and date
+                            String cap = caption.getText().toString();
+                            String date = yearSelected + monthSelected + daySelected;
+                            Event event = new Event(imageUri,cap,date);
+                            myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
+                            //kill the activity and remove it from the stack
+                            onBackPressed();
+                        }
+                    });
+                }
             }
         });
 
