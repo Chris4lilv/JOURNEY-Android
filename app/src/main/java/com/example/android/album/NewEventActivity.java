@@ -172,17 +172,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
             }
         });
 
-        uploadImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
-            }
-        });
-
-
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -236,13 +225,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                     dpd = null;
                 });
                 dpd.show(getSupportFragmentManager(), "Datepickerdialog");
-            }
-        });
-
-        //Reset animation when an image is uploaded
-        uploadImageButton.addAnimatorListener(new AnimatorListenerAdapter() {
-            @Override public void onAnimationEnd(Animator animation) {
-                uploadImageButton.setProgress(0);
             }
         });
 
