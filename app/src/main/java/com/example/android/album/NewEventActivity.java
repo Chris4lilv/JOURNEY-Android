@@ -60,10 +60,10 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     protected String mWorkSpace;
 
     ArrayList<String> imageUri;
+    ArrayList<String> imageDisplay;
 
     EditText caption;
 
-    LottieAnimationView uploadImageButton;
     LottieAnimationView createEventButton;
 
     private String yearSelected = "";
@@ -111,12 +111,12 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         mStorageReference = mStorage.getReference().child(mDirectory).child(mWorkSpace);
 
         imageUri = new ArrayList<>();
+        imageDisplay = new ArrayList<>();
         Uri uri = Uri.parse("android.resource://com.example.android.album/drawable/empty_photo");
-        imageUri.add(uri.toString());
+        imageDisplay.add(uri.toString());
 
         caption = findViewById(R.id.caption);
 
-        uploadImageButton = findViewById(R.id.upload_image);
         createEventButton = findViewById(R.id.create_event);
 
         imageRecyclerView = findViewById(R.id.image_holder_recycler_view);
@@ -124,7 +124,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         imageRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
 
         imageRecyclerView.setAdapter(adapter = new DemoAdapter());
-        adapter.replaceAll(imageUri, true);
+        adapter.replaceAll(imageDisplay, true);
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -148,8 +148,8 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                 if (childView != null) {
                     int position = imageRecyclerView.getChildLayoutPosition(childView);
                     //update the UI
-                    imageUri.remove(position);
-                    adapter.replaceAll(imageUri,true);
+                    imageDisplay.remove(position);
+                    adapter.replaceAll(imageDisplay,true);
                     Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -268,31 +268,29 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         if (requestCode == RC_PHOTO_PICKER) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null){
-                imageUri.add(selectedImageUri.toString());
-                adapter.replaceAll(imageUri, true);
-//                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
-//                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-//                    @Override
-//                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-//                        if (!task.isSuccessful()) {
-//                            throw task.getException();
-//                        }
-//                        return photoRef.getDownloadUrl();
-//                    }
-//                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Uri> task) {
-//                        if (task.isSuccessful()) {
-//                            Uri downloadUri = task.getResult();
-//                            imageUri.add(downloadUri.toString());
-//                            uploadImageButton.setSpeed(2);
-//                            uploadImageButton.playAnimation();
-//
-//                        } else {
-//                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
+                imageDisplay.add(selectedImageUri.toString());
+                adapter.replaceAll(imageDisplay, true);
+                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
+                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return photoRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            imageUri.add(downloadUri.toString());
+
+                        } else {
+                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
             }
         }
