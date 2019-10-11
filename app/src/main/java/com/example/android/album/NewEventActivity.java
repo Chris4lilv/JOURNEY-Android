@@ -60,7 +60,10 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     protected String mWorkSpace;
 
     ArrayList<String> imageUri;
+    ArrayList<Uri> urlHolder;
     ArrayList<String> imageDisplay;
+
+
 
     EditText caption;
 
@@ -112,6 +115,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
 
         imageUri = new ArrayList<>();
         imageDisplay = new ArrayList<>();
+        urlHolder = new ArrayList<>();
         Uri uri = Uri.parse("android.resource://com.example.android.album/drawable/empty_photo");
         imageDisplay.add(uri.toString());
 
@@ -179,19 +183,14 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                     Toast.makeText(NewEventActivity.this, "Did you forget to pick date?", Toast.LENGTH_SHORT).show();
                 }else{
                     createEventButton.playAnimation();
+                    ArrayList<String> uris = uploadImage(imageUri);
                     createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            //Send back data whether this button is clicked
-                            selectionOfCreateEventButton = true;
-                            Intent intent = new Intent();
-                            intent.putExtra("selection_of_create_event_button", selectionOfCreateEventButton);
-                            setResult(Activity.RESULT_OK, intent);
-
                             //get caption and date
                             String cap = caption.getText().toString();
                             String date = yearSelected + monthSelected + daySelected;
-                            Event event = new Event(imageUri,cap,date);
+                            Event event = new Event(uris,cap,date);
                             myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
                             //kill the activity and remove it from the stack
                             onBackPressed();
@@ -269,31 +268,39 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null){
                 imageDisplay.add(selectedImageUri.toString());
+                urlHolder.add(selectedImageUri);
                 adapter.replaceAll(imageDisplay, true);
-                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
-                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
-                        return photoRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Uri downloadUri = task.getResult();
-                            imageUri.add(downloadUri.toString());
-
-                        } else {
-                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
             }
         }
+    }
+
+    public ArrayList<String>  uploadImage(ArrayList<String> imageUri){
+        for(int i = 0; i < urlHolder.size(); i++){
+            Uri selectedImageUri = urlHolder.get(i);
+            StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
+            photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    return photoRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        imageUri.add(downloadUri.toString());
+                    } else {
+                        Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        return imageUri;
+
     }
 
     protected void revealActivity(int x, int y) {
