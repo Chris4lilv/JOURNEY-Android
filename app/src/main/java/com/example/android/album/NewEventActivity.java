@@ -3,18 +3,21 @@ package com.example.android.album;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewTreeObserver;
@@ -63,16 +66,19 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     LottieAnimationView uploadImageButton;
     LottieAnimationView createEventButton;
 
-    String yearSelected = "";
-    String monthSelected = "";
-    String daySelected = "";
+    private String yearSelected = "";
+    private String monthSelected = "";
+    private String daySelected = "";
     boolean selectionOfCreateEventButton = false;
 
     private DatePickerDialog dpd;
     private TextView dateTextView;
     private Button dateSelect;
 
-    ArrayList<String> THIRTY_ONE_DAYS = new ArrayList<>(Arrays.asList("01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"));
+    private RecyclerView imageRecyclerView;
+    private DemoAdapter adapter;
+
+    private GestureDetector gestureDetector;
 
     //This parts take care of circular revelation
     View rootLayout;
@@ -105,11 +111,66 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         mStorageReference = mStorage.getReference().child(mDirectory).child(mWorkSpace);
 
         imageUri = new ArrayList<>();
+        Uri uri = Uri.parse("android.resource://com.example.android.album/drawable/empty_photo");
+        imageUri.add(uri.toString());
 
         caption = findViewById(R.id.caption);
 
         uploadImageButton = findViewById(R.id.upload_image);
         createEventButton = findViewById(R.id.create_event);
+
+        imageRecyclerView = findViewById(R.id.image_holder_recycler_view);
+        imageRecyclerView.setHasFixedSize(true);
+        imageRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+
+        imageRecyclerView.setAdapter(adapter = new DemoAdapter());
+        adapter.replaceAll(imageUri, true);
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                View childView = imageRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                if(childView != null){
+                    if(imageRecyclerView.getChildLayoutPosition(childView) == 0){
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/jpeg");
+                        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                        startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                    }
+                }
+                return super.onSingleTapUp(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                super.onLongPress(e);
+                View childView = imageRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                if (childView != null) {
+                    int position = imageRecyclerView.getChildLayoutPosition(childView);
+                    //update the UI
+                    imageUri.remove(position);
+                    adapter.replaceAll(imageUri,true);
+                    Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+
+        imageRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                return gestureDetector.onTouchEvent(e);
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
 
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -225,29 +286,31 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         if (requestCode == RC_PHOTO_PICKER) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null){
-                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
-                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
-                        return photoRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Uri downloadUri = task.getResult();
-                            imageUri.add(downloadUri.toString());
-                            uploadImageButton.setSpeed(2);
-                            uploadImageButton.playAnimation();
-
-                        } else {
-                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                imageUri.add(selectedImageUri.toString());
+                adapter.replaceAll(imageUri, true);
+//                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
+//                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+//                    @Override
+//                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+//                        if (!task.isSuccessful()) {
+//                            throw task.getException();
+//                        }
+//                        return photoRef.getDownloadUrl();
+//                    }
+//                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Uri> task) {
+//                        if (task.isSuccessful()) {
+//                            Uri downloadUri = task.getResult();
+//                            imageUri.add(downloadUri.toString());
+//                            uploadImageButton.setSpeed(2);
+//                            uploadImageButton.playAnimation();
+//
+//                        } else {
+//                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
 
             }
         }

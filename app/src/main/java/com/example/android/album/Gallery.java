@@ -69,10 +69,10 @@ public class Gallery extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
 
-        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         recyclerView.setAdapter(adapter = new DemoAdapter());
 
-        adapter.replaceAll(urlsList);
+        adapter.replaceAll(urlsList, false);
 
         /**
          * Code Snippet to detect gesture on single item in recyclerview
@@ -93,25 +93,6 @@ public class Gallery extends AppCompatActivity {
                 }
                 return super.onSingleTapUp(e);
             }
-//            //TODO: Introduce the feature of deleting single image in an event
-//            @Override
-//            public void onLongPress(MotionEvent e) {
-//                super.onLongPress(e);
-//                View childView = recyclerView.findChildViewUnder(e.getX(), e.getY());
-//                if (childView != null) {
-//                    int position = recyclerView.getChildLayoutPosition(childView);
-//                    StorageReference mPhotoRef = mFirebaseStorage.getReferenceFromUrl(urlsList.get(position));
-//                    mPhotoRef.delete();
-//                    mDatabaseRef.child(mDirectory).child(key).child("url").child(Integer.toString(position)).removeValue();
-//                    //update the UI
-//                    urlsList.remove(position);
-//                    adapter.replaceAll(urlsList);
-//                    Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
-//                    Intent updateURL = new Intent();
-//                        updateURL.putStringArrayListExtra("newURL", urlsList);
-//                        setResult(Activity.RESULT_OK,updateURL);
-//                }
-//            }
         });
 
         /**

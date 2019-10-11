@@ -20,7 +20,9 @@ import java.util.ArrayList;
 public class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.BaseViewHolder> {
     private ArrayList<String> dataList = new ArrayList<>();
     private Resources res;
-    public void replaceAll(ArrayList<String> list) {
+    public boolean regular;
+    public void replaceAll(ArrayList<String> list, boolean mode) {
+        this.regular = mode;
         dataList.clear();
         if (list != null && list.size() > 0) {
             dataList.addAll(list);
@@ -64,8 +66,12 @@ public class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.BaseViewHolder
             int width = ((Activity) ivImage.getContext()).getWindowManager().getDefaultDisplay().getWidth();
             ViewGroup.LayoutParams params = ivImage.getLayoutParams();
             //设置图片的相对于屏幕的宽高比
-            params.width = width/3;
-            params.height =  (int) (200 + Math.random() * 400) ;
+            params.width = width/2;
+            if(regular){
+                params.height = 200;
+            }else{
+                params.height =  600;
+            }
             ivImage.setLayoutParams(params);
             res = itemView.getContext().getResources();
         }
