@@ -72,7 +72,7 @@ public class Gallery extends AppCompatActivity {
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         recyclerView.setAdapter(adapter = new DemoAdapter());
 
-        adapter.replaceAll(urlsList, false);
+        adapter.replaceAll(urlsList);
 
         /**
          * Code Snippet to detect gesture on single item in recyclerview

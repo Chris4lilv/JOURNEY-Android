@@ -11,11 +11,16 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -28,6 +33,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +72,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     ArrayList<Uri> urlHolder;
     ArrayList<String> imageDisplay;
 
-
+    private LinearLayout background;
 
     EditText caption;
 
@@ -81,7 +88,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     private ImageView dateSelect;
 
     private RecyclerView imageRecyclerView;
-    private DemoAdapter adapter;
+    private SmallImageAdapter adapter;
 
     private GestureDetector gestureDetector;
 
@@ -97,6 +104,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
+
 
         dateTextView = findViewById(R.id.dateTextView);
         dateSelect = findViewById(R.id.dateSelect);
@@ -118,19 +126,19 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         imageUri = new ArrayList<>();
         imageDisplay = new ArrayList<>();
         urlHolder = new ArrayList<>();
-        Uri uri = Uri.parse("android.resource://com.example.android.album/drawable/empty_photo");
-        imageDisplay.add(uri.toString());
+
+        imageDisplay.add("android.resource://com.example.android.album/drawable/ic_add_img");
 
         caption = findViewById(R.id.caption);
 
         createEventButton = findViewById(R.id.create_event);
 
         imageRecyclerView = findViewById(R.id.image_holder_recycler_view);
-        imageRecyclerView.setHasFixedSize(true);
+        imageRecyclerView.setHasFixedSize(false);
         imageRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
 
-        imageRecyclerView.setAdapter(adapter = new DemoAdapter());
-        adapter.replaceAll(imageDisplay, true);
+        imageRecyclerView.setAdapter(adapter = new SmallImageAdapter());
+        adapter.replaceAll(imageDisplay);
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -153,13 +161,14 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                 View childView = imageRecyclerView.findChildViewUnder(e.getX(), e.getY());
                 if (childView != null) {
                     int position = imageRecyclerView.getChildLayoutPosition(childView);
-                    //update the UI
-                    imageDisplay.remove(position);
-                    adapter.replaceAll(imageDisplay,true);
-                    Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
+                    if(position != 0){
+                        //update the UI
+                        imageDisplay.remove(position);
+                        adapter.replaceAll(imageDisplay);
+                        Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
-
         });
 
         imageRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
@@ -271,7 +280,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
             if (selectedImageUri != null){
                 imageDisplay.add(selectedImageUri.toString());
                 urlHolder.add(selectedImageUri);
-                adapter.replaceAll(imageDisplay, true);
+                adapter.replaceAll(imageDisplay);
             }
         }
     }

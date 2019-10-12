@@ -46,8 +46,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="240dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:layout_marginTop="32dp"
         android:layout_below="@id/frame_layout"
         android:layout_centerHorizontal="true"
@@ -57,11 +57,11 @@
         android:layout_width="300dp"
         android:layout_height="100dp"
         android:id="@+id/create_event"
-        android:layout_below="@+id/image_holder_recycler_view"
         android:layout_centerHorizontal="true"
         app:lottie_rawRes="@raw/create_event"
         android:scaleType="centerCrop"
-        android:layout_marginTop="50dp"/>
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp"/>
 
 
 </RelativeLayout>
