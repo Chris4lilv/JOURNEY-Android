@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +78,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
 
     private DatePickerDialog dpd;
     private TextView dateTextView;
-    private Button dateSelect;
+    private ImageView dateSelect;
 
     private RecyclerView imageRecyclerView;
     private DemoAdapter adapter;

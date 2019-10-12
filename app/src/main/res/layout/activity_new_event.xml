@@ -15,12 +15,6 @@
         android:layout_marginTop="16dp"
         android:text="click"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="date"
-        android:id="@+id/dateSelect"/>
-
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,6 +36,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/dateSelect"
             android:src="@drawable/ic_date_range_black_24dp"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="20dp"
