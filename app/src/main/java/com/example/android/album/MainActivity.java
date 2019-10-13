@@ -50,8 +50,6 @@ public class MainActivity extends AppCompatActivity{
 
     private MenuItem newJourney;
 
-    private Boolean checkJourney;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +62,6 @@ public class MainActivity extends AppCompatActivity{
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         switchToPersonal = false;
-        checkJourney = false;
 
         //This create the icon at the upper left corner that would change as navigation drawer open
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.caption_hint,R.string.cancel);
@@ -99,12 +96,6 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
-
-        //check if a journey is added
-        if(journeysMenu.size() > 1){
-            checkJourney = true;
-        }
-
         mUserName = headerView.findViewById(R.id.user_name);
         mUserName.setText(user.getDisplayName());
 
@@ -115,7 +106,7 @@ public class MainActivity extends AppCompatActivity{
                 switch (item.getItemId()) {
                     case 101:
                         displayFragment.mWorkspace = joinJourney.substring(joinJourney.indexOf("/") + 1);
-                        displayFragment.mDirectory = joinJourney.substring(0, joinJourney.indexOf("/")).replaceAll("[\\p{P}]", "");
+                        displayFragment.mDirectory = joinJourney.substring(0, joinJourney.indexOf("@")).replaceAll("[\\p{P}]", "");
                         switchToPersonal = false;
                         displayFragment.changeWorkSpace();
                         newJourney.setIcon(R.drawable.romance_heart_24_filled);
@@ -161,7 +152,6 @@ public class MainActivity extends AppCompatActivity{
                         break;
                     case R.id.nav_account_setting:
                         Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                        intentSettings.putExtra("checkJourney", checkJourney);
                         startActivity(intentSettings);
                         finish();
                         break;

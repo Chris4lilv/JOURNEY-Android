@@ -43,9 +43,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
-        Intent intent = getIntent();
-        checkJourney = intent.getBooleanExtra("checkJourney", false);
     }
     public static class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -88,14 +85,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
-            if (((SettingsActivity) getActivity()).checkJourney) {
-//                journey.setEnabled(false);
-//                joinJourney.setEnabled(false);
-            } else {
-                journey.setEnabled(true);
-                joinJourney.setEnabled(true);
-            }
-
 
 
             //Create a Journey
@@ -103,6 +92,11 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String workspace = newValue.toString().replaceAll("[\\p{P}]", "");
+                    if(workspace.length() != 0){
+                        joinJourney.setEnabled(false);
+                    }else{
+                        joinJourney.setEnabled(true);
+                    }
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("JourneyName", workspace);
                     editor.apply();
@@ -117,8 +111,8 @@ public class SettingsActivity extends AppCompatActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String entireInput = newValue.toString();
                     //Split the input
-                    if (entireInput.contains("/")) {
-                        userName = entireInput.substring(0, entireInput.indexOf("/")).replaceAll("[\\p{P}]", "");
+                    if (entireInput.contains("/") && entireInput.contains("@")) {
+                        userName = entireInput.substring(0, entireInput.indexOf("@")).replaceAll("[\\p{P}]", "");
                         workspace = entireInput.substring(entireInput.indexOf("/") + 1);
                     } else {
                         userName = " ";
@@ -140,6 +134,7 @@ public class SettingsActivity extends AppCompatActivity {
                                         SharedPreferences.Editor editor = sharedPreferences.edit();
                                         editor.putString("JoinJourney", entireInput);
                                         editor.apply();
+                                        journey.setEnabled(false);
                                     } else {
                                         Toast.makeText(getContext(), "Journey doesn't exists", Toast.LENGTH_SHORT).show();
                                     }
@@ -155,6 +150,7 @@ public class SettingsActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("JoinJourney", entireInput);
                         editor.apply();
+                        journey.setEnabled(true);
                     }
 
                     return true;

@@ -28,7 +28,7 @@
             app:key="joinJourney"
             android:title="Join a journey"
             app:useSimpleSummaryProvider="true"
-            android:hint="UserEmail/JourneyName"/>
+            android:defaultValue="UserEmail/JourneyName"/>
 
         <ListPreference
             app:defaultValue="reply"
