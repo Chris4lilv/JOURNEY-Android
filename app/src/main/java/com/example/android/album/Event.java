@@ -10,6 +10,7 @@ public class Event implements Serializable {
     private String caption;
     private String date;
     private String key;
+    private int color;
 
     public Event() {
     }
@@ -19,10 +20,11 @@ public class Event implements Serializable {
         this.date = date;
     }
 
-    public Event(ArrayList<String> url, String caption, String date) {
+    public Event(ArrayList<String> url, String caption, String date, int color) {
         this.url = url;
         this.caption = caption;
         this.date = date;
+        this.color = color;
     }
 
     public ArrayList<String> getUrl() {
@@ -40,6 +42,8 @@ public class Event implements Serializable {
     public String getKey() {
         return key;
     }
+
+    public int getColor(){return color;}
 
     public void setUrl(ArrayList<String> url) {
         this.url = url;

@@ -7,62 +7,66 @@
     android:id="@+id/root_layout"
     android:background="@color/colorPrimary">
 
-    <EditText
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/frame_layout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dateTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="45dp"
+            android:textSize="30sp"
+            android:fontFamily="@font/roboto_light"
+            android:layout_alignStart="@id/frame_layout"
+            android:layout_marginStart="40dp"
+            android:text="On October 13, 2019, "/>
+
+        <EditText
+            android:id="@+id/caption"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="110dp"
+            android:layout_marginRight="40dp"
+            android:background="@drawable/text_field_outlined"
+            android:inputType="textCapCharacters"
+            android:fontFamily="@font/robotomedium"
+            android:hint="@string/caption_hint"
+            android:paddingStart="10dp"
+            android:paddingEnd="30dp"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dateSelect"
+            android:src="@drawable/ic_date_range_black_24dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="52dp"/>
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/caption_hint"
-        android:layout_marginTop="100dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
-        android:id="@+id/caption"/>
-
-    <Spinner
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/year"
-        android:layout_toStartOf="@id/month"
-        android:layout_below="@+id/caption"
-        android:layout_marginTop="30dp">
-    </Spinner>
-
-    <Spinner
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/month"
+        android:layout_height="240dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="32dp"
+        android:layout_below="@id/frame_layout"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/caption"
-        android:layout_marginTop="30dp">
-    </Spinner>
-
-    <Spinner
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/day"
-        android:layout_toEndOf="@+id/month"
-        android:layout_below="@+id/caption"
-        android:layout_marginTop="30dp">
-
-    </Spinner>
-
-    <com.airbnb.lottie.LottieAnimationView
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/upload_image"
-        android:layout_below="@+id/month"
-        android:layout_marginTop="100dp"
-        app:lottie_rawRes="@raw/submitted"
-        android:scaleType="centerInside"
-        />
+        android:id="@+id/image_holder_recycler_view"/>
 
     <com.airbnb.lottie.LottieAnimationView
         android:layout_width="300dp"
         android:layout_height="100dp"
         android:id="@+id/create_event"
-        android:layout_below="@+id/upload_image"
         android:layout_centerHorizontal="true"
         app:lottie_rawRes="@raw/create_event"
         android:scaleType="centerCrop"
-        android:layout_marginTop="50dp"/>
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp"/>
+
 
 </RelativeLayout>

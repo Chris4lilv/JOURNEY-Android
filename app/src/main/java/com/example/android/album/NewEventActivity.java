@@ -3,27 +3,28 @@ package com.example.android.album;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,13 +38,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
 
-public class NewEventActivity extends AppCompatActivity {
+public class NewEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+
+    private static final String[] MONTH_OF_YEAR = new String[]{"January", "February","March","April","May","June","July","August","September","October","November","December"};
 
     private static final int RC_PHOTO_PICKER =  2;
+    private int color = 0;
 
     //setup firebase
     FirebaseStorage mStorage;
@@ -56,30 +62,25 @@ public class NewEventActivity extends AppCompatActivity {
     protected String mWorkSpace;
 
     ArrayList<String> imageUri;
+    ArrayList<Uri> urlHolder;
+    ArrayList<String> imageDisplay;
 
     EditText caption;
 
-    LottieAnimationView uploadImageButton;
     LottieAnimationView createEventButton;
 
-    Spinner yearSpinner;
-    Spinner monthSpinner;
-    Spinner daySpinner;
+    private String yearSelected = "";
+    private String monthSelected = "";
+    private String daySelected = "";
 
-    ArrayList<String> yearList;
-    ArrayList<String> monthList;
-    ArrayList<String> dayList;
+    private DatePickerDialog dpd;
+    private TextView dateTextView;
+    private ImageView dateSelect;
 
-    String year = "";
-    String month = "";
-    String day = "";
-    boolean selectionOfCreateEventButton = false;
+    private RecyclerView imageRecyclerView;
+    private SmallImageAdapter adapter;
 
-    ArrayAdapter<String> dayAdapter;
-    ArrayAdapter<String> monthAdapter;
-    ArrayAdapter<String> yearAdapter;
-
-    ArrayList<String> THIRTY_ONE_DAYS = new ArrayList<>(Arrays.asList("01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"));
+    private GestureDetector gestureDetector;
 
     //This parts take care of circular revelation
     View rootLayout;
@@ -93,6 +94,10 @@ public class NewEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
+
+
+        dateTextView = findViewById(R.id.dateTextView);
+        dateSelect = findViewById(R.id.dateSelect);
 
         final Intent intent = getIntent();
         mWorkSpace = intent.getStringExtra("WorkSpace");
@@ -109,130 +114,125 @@ public class NewEventActivity extends AppCompatActivity {
         mStorageReference = mStorage.getReference().child(mDirectory).child(mWorkSpace);
 
         imageUri = new ArrayList<>();
+        imageDisplay = new ArrayList<>();
+        urlHolder = new ArrayList<>();
+
+        imageDisplay.add("android.resource://com.example.android.album/drawable/ic_add_img");
 
         caption = findViewById(R.id.caption);
 
-        uploadImageButton = findViewById(R.id.upload_image);
         createEventButton = findViewById(R.id.create_event);
 
-        //initialize spinner
-        yearSpinner = (Spinner) findViewById(R.id.year);
-        monthSpinner = (Spinner)findViewById(R.id.month);
-        daySpinner = (Spinner)findViewById(R.id.day);
+        imageRecyclerView = findViewById(R.id.image_holder_recycler_view);
+        imageRecyclerView.setHasFixedSize(false);
+        imageRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
 
-        //initialize Arraylist
-        yearList = new ArrayList<String>();
-        monthList = new ArrayList<String>(Arrays.asList("01","02","03","04","05","06","07","08","09","10","11","12"));
-        dayList = new ArrayList<String>(THIRTY_ONE_DAYS);
+        imageRecyclerView.setAdapter(adapter = new SmallImageAdapter());
+        adapter.replaceAll(imageDisplay);
 
-
-        //fill the yearList
-        for(int i = 2019; i < 2050; i++){
-            yearList.add(Integer.toString(i));
-        }
-        // Create an ArrayAdapter for year
-        yearAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,yearList);
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        yearSpinner.setAdapter(yearAdapter);
-
-        //Create an ArrayAdapter for month
-        monthAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, monthList);
-        monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        monthSpinner.setAdapter(monthAdapter);
-
-        //Create an ArrayAdapter for month
-        dayAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,dayList);
-        dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        daySpinner.setAdapter(dayAdapter);
-
-       yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-           @Override
-           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-               year = parent.getItemAtPosition(position).toString();
-           }
-
-           @Override
-           public void onNothingSelected(AdapterView<?> parent) {
-
-           }
-       });
-
-        monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String currentItem = parent.getItemAtPosition(position).toString();
-                month = currentItem;
-                if(currentItem.equals("02")){
-                    dayList.subList(0,27);
-                    dayAdapter.notifyDataSetChanged();
-                }else if(currentItem.equals(monthList.get(4)) || currentItem.equals(monthList.get(5)) || currentItem.equals(monthList.get(8)) || currentItem.equals(monthList.get(10))){
-                    dayList.subList(0,29);
-                    dayAdapter.notifyDataSetChanged();
-                }else{
-                    dayList = THIRTY_ONE_DAYS;
+            public boolean onSingleTapUp(MotionEvent e) {
+                View childView = imageRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                if(childView != null){
+                    if(imageRecyclerView.getChildLayoutPosition(childView) == 0){
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/jpeg");
+                        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                        startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                    }
+                }
+                return super.onSingleTapUp(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                super.onLongPress(e);
+                View childView = imageRecyclerView.findChildViewUnder(e.getX(), e.getY());
+                if (childView != null) {
+                    int position = imageRecyclerView.getChildLayoutPosition(childView);
+                    if(position != 0){
+                        //update the UI
+                        imageDisplay.remove(position);
+                        adapter.replaceAll(imageDisplay);
+                        Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
+        });
+
+        imageRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                return gestureDetector.onTouchEvent(e);
+            }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
             }
         });
-
-        daySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                day = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        uploadImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
-            }
-        });
-
 
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createEventButton.playAnimation();
-                createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        //Send back data whether this button is clicked
-                        selectionOfCreateEventButton = true;
-                        Intent intent = new Intent();
-                        intent.putExtra("selection_of_create_event_button", selectionOfCreateEventButton);
-                        setResult(Activity.RESULT_OK, intent);
-
-                        //get caption and date
-                        String cap = caption.getText().toString();
-                        String date = year + month + day;
-                        Event event = new Event(imageUri,cap,date);
-                        myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
-                        //kill the activity and remove it from the stack
-                        onBackPressed();
+                createEventButton.setClickable(false);
+                if(yearSelected.length() == 0 || monthSelected.length() == 0 || daySelected.length() == 0){
+                    Toast.makeText(NewEventActivity.this, "Did you forget to pick date?", Toast.LENGTH_SHORT).show();
+                }else{
+                    createEventButton.playAnimation();
+                    try {
+                        Bitmap bm = BitmapFactory.decodeStream(
+                                getContentResolver().openInputStream(urlHolder.get(0)));
+                        DynamicColor dynamicColor = new DynamicColor(bm,getApplicationContext());
+                        color = dynamicColor.getColor();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
-                });
-
-
+                    ArrayList<String> uris = uploadImage(imageUri);
+                    createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                                //get caption and date
+                                String cap = caption.getText().toString();
+                                String date = yearSelected + monthSelected + daySelected;
+                                Event event = new Event(uris,cap,date, color);
+                                myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
+                                //kill the activity and remove it from the stack
+                                onBackPressed();
+                        }
+                    });
+                }
             }
         });
 
-        //Reset animation when an image is uploaded
-        uploadImageButton.addAnimatorListener(new AnimatorListenerAdapter() {
-            @Override public void onAnimationEnd(Animator animation) {
-                uploadImageButton.setProgress(0);
+        dateSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar now = Calendar.getInstance();
+                if (dpd == null) {
+                    dpd = DatePickerDialog.newInstance(
+                            NewEventActivity.this,
+                            now.get(Calendar.YEAR),
+                            now.get(Calendar.MONTH),
+                            now.get(Calendar.DAY_OF_MONTH)
+                    );
+                } else {
+                    dpd.initialize(
+                            NewEventActivity.this,
+                            now.get(Calendar.YEAR),
+                            now.get(Calendar.MONTH),
+                            now.get(Calendar.DAY_OF_MONTH)
+                    );
+                }
+                dpd.setOnCancelListener(dialog -> {
+                    dpd = null;
+                });
+                dpd.show(getSupportFragmentManager(), "Datepickerdialog");
             }
         });
 
@@ -264,12 +264,6 @@ public class NewEventActivity extends AppCompatActivity {
         } else {
             rootLayout.setVisibility(View.VISIBLE);
         }
-
-
-
-
-
-
     }
 
     //get the image from the method call startIntentForResult and upload it to Firebase storage
@@ -282,32 +276,40 @@ public class NewEventActivity extends AppCompatActivity {
         if (requestCode == RC_PHOTO_PICKER) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null){
-                final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
-                photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
-                        return photoRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Uri downloadUri = task.getResult();
-                            imageUri.add(downloadUri.toString());
-                            uploadImageButton.setSpeed(2);
-                            uploadImageButton.playAnimation();
-
-                        } else {
-                            Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
+                imageDisplay.add(selectedImageUri.toString());
+                urlHolder.add(selectedImageUri);
+                adapter.replaceAll(imageDisplay);
             }
         }
+    }
+
+    public ArrayList<String>  uploadImage(ArrayList<String> imageUri){
+        for(int i = 0; i < urlHolder.size(); i++){
+            Uri selectedImageUri = urlHolder.get(i);
+            StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
+            photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    return photoRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        imageUri.add(downloadUri.toString());
+                    } else {
+                        Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        return imageUri;
+
     }
 
     protected void revealActivity(int x, int y) {
@@ -349,7 +351,22 @@ public class NewEventActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        String date = "On "+ MONTH_OF_YEAR[monthOfYear] + " " + dayOfMonth+", "+ year  + ", ";
+        dateTextView.setText(date);
+        yearSelected = Integer.toString(year);
+        monthSelected = Integer.toString(monthOfYear + 1);
+        if(monthOfYear + 1 < 10){
+            monthSelected = "0" + monthSelected;
+        }
+        daySelected = Integer.toString(dayOfMonth);
+        if(dayOfMonth < 10){
+            daySelected = "0" + daySelected;
+        }
+        dpd = null;
+        dateSelect.setImageResource(R.drawable.ic_date_range_white_24dp);
+    }
 
     @Override
     public void onBackPressed() {

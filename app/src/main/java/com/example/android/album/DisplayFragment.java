@@ -159,7 +159,7 @@ public class DisplayFragment extends Fragment{
                 ArrayList<String> URLs = currentEvent.getUrl();
                 String key = eventKeyList.get(position);
                 String title = currentEvent.getCaption();
-
+                int color = currentEvent.getColor();
 
                 Intent intent = new Intent(getActivity(),Gallery.class);
 
@@ -167,6 +167,8 @@ public class DisplayFragment extends Fragment{
                 bundle.putStringArrayList("URLs",URLs);
                 bundle.putString("Key",key);
                 bundle.putString("Title",title);
+                bundle.putInt("Color", color);
+
                 RC_GALLERY = position;
 //                intent.putExtra("URLs",URLs);
 //                intent.putExtra("Key",key);
