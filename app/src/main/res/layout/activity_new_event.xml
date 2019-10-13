@@ -7,27 +7,32 @@
     android:id="@+id/root_layout"
     android:background="@color/colorPrimary">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/dateTextView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="click"/>
-
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/frame_layout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dateTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="45dp"
+            android:textSize="30sp"
+            android:fontFamily="@font/roboto_light"
+            android:layout_alignStart="@id/frame_layout"
+            android:layout_marginStart="40dp"
+            android:text="On October 13, 2019, "/>
 
         <EditText
             android:id="@+id/caption"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_marginLeft="40dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="110dp"
             android:layout_marginRight="40dp"
             android:background="@drawable/text_field_outlined"
+            android:inputType="textCapCharacters"
             android:fontFamily="@font/robotomedium"
             android:hint="@string/caption_hint"
             android:paddingStart="10dp"

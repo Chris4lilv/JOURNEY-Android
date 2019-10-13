@@ -8,21 +8,12 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.Layout;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -54,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class NewEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+
+    private static final String[] MONTH_OF_YEAR = new String[]{"January", "February","March","April","May","June","July","August","September","October","November","December"};
 
     private static final int RC_PHOTO_PICKER =  2;
     private int color = 0;
@@ -187,7 +180,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                createEventButton.setClickable(false);
                 if(yearSelected.length() == 0 || monthSelected.length() == 0 || daySelected.length() == 0){
                     Toast.makeText(NewEventActivity.this, "Did you forget to pick date?", Toast.LENGTH_SHORT).show();
                 }else{
@@ -199,7 +192,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                         color = dynamicColor.getColor();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
-                    } 
+                    }
                     ArrayList<String> uris = uploadImage(imageUri);
                     createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
                         @Override
@@ -237,7 +230,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                     );
                 }
                 dpd.setOnCancelListener(dialog -> {
-                    Log.d("DatePickerDialog", "Dialog was cancelled");
                     dpd = null;
                 });
                 dpd.show(getSupportFragmentManager(), "Datepickerdialog");
@@ -361,8 +353,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
 
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        String a = "0" + (monthOfYear + 1);
-        String date = "You picked the following date: "+dayOfMonth+"/"+ a +"/"+year;
+        String date = "On "+ MONTH_OF_YEAR[monthOfYear] + " " + dayOfMonth+", "+ year  + ", ";
         dateTextView.setText(date);
         yearSelected = Integer.toString(year);
         monthSelected = Integer.toString(monthOfYear + 1);
@@ -374,6 +365,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
             daySelected = "0" + daySelected;
         }
         dpd = null;
+        dateSelect.setImageResource(R.drawable.ic_date_range_white_24dp);
     }
 
     @Override
