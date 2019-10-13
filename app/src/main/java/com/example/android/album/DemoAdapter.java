@@ -4,23 +4,30 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.BaseViewHolder> {
     private ArrayList<String> dataList = new ArrayList<>();
     private Resources res;
+
     public void replaceAll(ArrayList<String> list) {
         dataList.clear();
         if (list != null && list.size() > 0) {
@@ -64,7 +71,6 @@ public class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.BaseViewHolder
             ivImage = (ImageView) view.findViewById(R.id.ivImage);
             int width = ((Activity) ivImage.getContext()).getWindowManager().getDefaultDisplay().getWidth();
             ViewGroup.LayoutParams params = ivImage.getLayoutParams();
-            //设置图片的相对于屏幕的宽高比
             params.width = width/2;
             params.height =  600;
             ivImage.setLayoutParams(params);

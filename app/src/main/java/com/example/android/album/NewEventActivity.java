@@ -20,6 +20,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Layout;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -30,11 +31,9 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,13 +49,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 public class NewEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private static final int RC_PHOTO_PICKER =  2;
+    private int color = 0;
 
     //setup firebase
     FirebaseStorage mStorage;
@@ -72,8 +72,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     ArrayList<Uri> urlHolder;
     ArrayList<String> imageDisplay;
 
-    private LinearLayout background;
-
     EditText caption;
 
     LottieAnimationView createEventButton;
@@ -81,7 +79,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     private String yearSelected = "";
     private String monthSelected = "";
     private String daySelected = "";
-    boolean selectionOfCreateEventButton = false;
 
     private DatePickerDialog dpd;
     private TextView dateTextView;
@@ -190,21 +187,30 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if(yearSelected.length() == 0 || monthSelected.length() == 0 || daySelected.length() == 0){
                     Toast.makeText(NewEventActivity.this, "Did you forget to pick date?", Toast.LENGTH_SHORT).show();
                 }else{
                     createEventButton.playAnimation();
+                    try {
+                        Bitmap bm = BitmapFactory.decodeStream(
+                                getContentResolver().openInputStream(urlHolder.get(0)));
+                        DynamicColor dynamicColor = new DynamicColor(bm,getApplicationContext());
+                        color = dynamicColor.getColor();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } 
                     ArrayList<String> uris = uploadImage(imageUri);
                     createEventButton.addAnimatorListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            //get caption and date
-                            String cap = caption.getText().toString();
-                            String date = yearSelected + monthSelected + daySelected;
-                            Event event = new Event(uris,cap,date);
-                            myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
-                            //kill the activity and remove it from the stack
-                            onBackPressed();
+                                //get caption and date
+                                String cap = caption.getText().toString();
+                                String date = yearSelected + monthSelected + daySelected;
+                                Event event = new Event(uris,cap,date, color);
+                                myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
+                                //kill the activity and remove it from the stack
+                                onBackPressed();
                         }
                     });
                 }
