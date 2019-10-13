@@ -183,6 +183,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                 createEventButton.setClickable(false);
                 if(yearSelected.length() == 0 || monthSelected.length() == 0 || daySelected.length() == 0){
                     Toast.makeText(NewEventActivity.this, "Did you forget to pick date?", Toast.LENGTH_SHORT).show();
+                    createEventButton.setClickable(true);
                 }else{
                     createEventButton.playAnimation();
                     try {
@@ -202,7 +203,8 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                                 String date = yearSelected + monthSelected + daySelected;
                                 Event event = new Event(uris,cap,date, color);
                                 myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
-                                //kill the activity and remove it from the stack
+                                createEventButton.setClickable(true);
+                            //kill the activity and remove it from the stack
                                 onBackPressed();
                         }
                     });
