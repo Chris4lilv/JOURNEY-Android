@@ -9,12 +9,17 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +29,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -44,6 +50,11 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
+import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
 public class NewEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -91,11 +102,18 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     public static final String EXTRA_CIRCULAR_REVEAL_X = "EXTRA_CIRCULAR_REVEAL_X";
     public static final String EXTRA_CIRCULAR_REVEAL_Y = "EXTRA_CIRCULAR_REVEAL_Y";
 
+    public static SharedPreferences sharedPreferences;
+    public static boolean firstTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
+
+        //Check if user get here for the first time
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        firstTime = sharedPreferences.getBoolean("FirstTime",false);
 
 
         dateTextView = findViewById(R.id.dateTextView);
@@ -270,6 +288,99 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         } else {
             rootLayout.setVisibility(View.VISIBLE);
         }
+
+//        caption.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if(!hasFocus && caption.length() != 0 && firstTime){
+//                    selectDateGuide();
+//                }
+//            }
+//        });
+
+        caption.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() == 7 && firstTime){
+                    onBackPressed();
+                    selectDateGuide();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
+        if(firstTime){
+            new GuideView.Builder(this)
+                    .setTitle("First try to type in \"journey\" as your caption")
+                    .setGravity(Gravity.auto) //optional
+                    .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                    .setTargetView(caption)
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)
+                    .setGuideListener(new GuideListener() {
+                        @Override
+                        public void onDismiss(View view) {
+                            sharedPreferences.edit().putBoolean("FirstTime", false).apply();
+                        }
+                    })
+                    .build()
+                    .show();
+        }
+    }
+
+    /**
+     * Guide user to add caption
+     */
+    private void selectDateGuide(){
+        new GuideView.Builder(this)
+                .setTitle("You can select date here")
+                .setGravity(Gravity.auto) //optional
+                .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                .setTargetView(dateSelect)
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)
+                .build()
+                .show();
+    }
+
+    /**
+     * Guide user to add Picture.
+     */
+    private void addPicGuide(){
+        new GuideView.Builder(this)
+                .setTitle("Now add some pictures!")
+                .setGravity(Gravity.auto) //optional
+                .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                .setTargetView(imageRecyclerView)
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)
+                .build()
+                .show();
+    }
+
+    /**
+     * Guide user to create event.
+     */
+    private void createEventGuide(){
+        new GuideView.Builder(this)
+                .setTitle("Now we're good to go! Exciting isn't it?")
+                .setGravity(Gravity.auto) //optional
+                .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                .setTargetView(createEventButton)
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)
+                .build()
+                .show();
     }
 
     //get the image from the method call startIntentForResult and upload it to Firebase storage
@@ -285,6 +396,9 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                 imageDisplay.add(selectedImageUri.toString());
                 urlHolder.add(selectedImageUri);
                 adapter.replaceAll(imageDisplay);
+            }
+            if(NewEventActivity.firstTime){
+                createEventGuide();
             }
         }
     }
@@ -372,10 +486,23 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         }
         dpd = null;
         dateSelect.setImageResource(R.drawable.ic_date_range_white_24dp);
+        if(NewEventActivity.firstTime){
+            addPicGuide();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        unRevealActivity();
+        if(caption.isFocused()){
+            View view = this.getCurrentFocus();
+            if(view != null){
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+            }
+            caption.clearFocus();
+        }else{
+            unRevealActivity();
+        }
+
     }
 }

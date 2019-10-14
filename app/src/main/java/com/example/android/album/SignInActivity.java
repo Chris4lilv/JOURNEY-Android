@@ -183,7 +183,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        proceedToMain(currentUser);
+        proceedToMain(currentUser, false);
     }
 
     private void signIn(String email, String password){
@@ -194,12 +194,12 @@ public class SignInActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
-                            proceedToMain(user);
+                            proceedToMain(user, false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            proceedToMain(null);
+                            proceedToMain(null, false);
                         }
                     }
                 });
@@ -230,7 +230,7 @@ public class SignInActivity extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(SignInActivity.this, "Sign Up Success! " + username, Toast.LENGTH_SHORT).show();
-                                                proceedToMain(user);
+                                                proceedToMain(user, true);
                                             }
                                         }
                                     });
@@ -247,7 +247,7 @@ public class SignInActivity extends AppCompatActivity {
      * Proceed to Main Panel
      * @param user
      */
-    private void proceedToMain(FirebaseUser user){
+    private void proceedToMain(FirebaseUser user, boolean justSignUp){
         if(user == null){
             inputPassword.setText("");
             inputEmail.setText("");
@@ -258,6 +258,7 @@ public class SignInActivity extends AppCompatActivity {
             Intent intent = new Intent(SignInActivity.this, MainActivity.class);
             intent.putExtra("userName", userName);
             intent.putExtra("userEmail", userEmail);
+            intent.putExtra("signUp", justSignUp);
             startActivity(intent);
         }
     }

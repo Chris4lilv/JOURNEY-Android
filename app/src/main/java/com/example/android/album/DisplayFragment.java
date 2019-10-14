@@ -8,10 +8,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -60,6 +62,11 @@ import com.google.firebase.storage.UploadTask;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
+import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
+
 public class DisplayFragment extends Fragment{
 
     private static int RC_GALLERY = 0;
@@ -74,7 +81,6 @@ public class DisplayFragment extends Fragment{
     private TextView emptyView;
     private ProgressBar loadingIndicator;
     private FloatingActionButton fabAdd;
-    private SwipeRefreshLayout swipeRefreshLayout;
 
     private static final int RC_PHOTO_PICKER =  2;
 
@@ -235,6 +241,29 @@ public class DisplayFragment extends Fragment{
                 return true;
             }
         });
+
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        boolean firstTime = sharedPreferences.getBoolean("FirstTime",false);
+        if(firstTime){
+            new GuideView.Builder(getContext())
+                    .setTitle("Here you can add an event")
+                    .setGravity(Gravity.auto) //optional
+                    .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                    .setTargetView(fabAdd)
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)
+                    .setGuideListener(new GuideListener() {
+                        @Override
+                        public void onDismiss(View view) {
+
+                        }
+                    })//optional
+                    .build()
+                    .show();
+        }
+
+
         return view;
 
 

@@ -50,10 +50,17 @@ public class MainActivity extends AppCompatActivity{
 
     private MenuItem newJourney;
 
+    private boolean firstTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = getIntent();
+        firstTime = intent.getBooleanExtra("signUp",false);
+        SharedPreferences newUserGuide = PreferenceManager.getDefaultSharedPreferences(this);
+        newUserGuide.edit().putBoolean("FirstTime", firstTime).apply();
 
         mAuth = FirebaseAuth.getInstance();
         final FirebaseUser user = mAuth.getCurrentUser();
