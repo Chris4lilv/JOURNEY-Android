@@ -51,6 +51,7 @@ public class Gallery extends AppCompatActivity {
     private String key;
     private String title;
     private int color;
+    private int comColor;
 
     private AppBarLayout mAppBarLayout;
 
@@ -73,6 +74,7 @@ public class Gallery extends AppCompatActivity {
         key = intent.getExtras().getString("Key");
         title = intent.getExtras().getString("Title");
         color = intent.getExtras().getInt("Color");
+        comColor = intent.getExtras().getInt("ComColor");
 
         //Set the event caption to be the gallery title
         galleryTitle = findViewById(R.id.gallery_title);
@@ -85,6 +87,7 @@ public class Gallery extends AppCompatActivity {
 
         mAppBarLayout = findViewById(R.id.app_bar_layout);
         mAppBarLayout.setBackgroundColor(color);
+        galleryTitle.setTextColor(comColor);
 
         recyclerView = (RecyclerView) findViewById(R.id.recylerview);
         recyclerView.setHasFixedSize(true);

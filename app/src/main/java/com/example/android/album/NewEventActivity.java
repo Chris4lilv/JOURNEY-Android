@@ -3,6 +3,7 @@ package com.example.android.album;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -50,6 +51,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
 
     private static final int RC_PHOTO_PICKER =  2;
     private int color = 0;
+    private int comColor = 0;
 
     //setup firebase
     FirebaseStorage mStorage;
@@ -190,6 +192,8 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                         Bitmap bm = BitmapFactory.decodeStream(
                                 getContentResolver().openInputStream(urlHolder.get(0)));
                         DynamicColor dynamicColor = new DynamicColor(bm,getApplicationContext());
+                        Palette p = Palette.from(bm).generate();
+                        comColor = p.getLightMutedSwatch().getRgb();
                         color = dynamicColor.getColor();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -201,7 +205,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                                 //get caption and date
                                 String cap = caption.getText().toString();
                                 String date = yearSelected + monthSelected + daySelected;
-                                Event event = new Event(uris,cap,date, color);
+                                Event event = new Event(uris,cap,date, color, comColor);
                                 myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
                                 createEventButton.setClickable(true);
                             //kill the activity and remove it from the stack

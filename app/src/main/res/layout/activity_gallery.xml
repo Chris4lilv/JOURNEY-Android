@@ -36,10 +36,10 @@
                 android:layout_gravity="bottom"
                 android:text="Title"
                 android:id="@+id/gallery_title"
-                android:paddingLeft="20dp"
-                android:fontFamily="Roboto"
+                android:paddingStart="20dp"
+                android:fontFamily="@font/roboto_regular"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textSize="40dp"/>
+                android:textSize="40sp"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

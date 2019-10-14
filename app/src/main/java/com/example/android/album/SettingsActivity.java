@@ -126,7 +126,7 @@ public class SettingsActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.hasChild(userName)) {
-                                    Toast.makeText(getContext(), "User doesn't exist", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Make sure the format email/journey name is correct", Toast.LENGTH_SHORT).show();
                                     joinJourney.setText("");
                                 } else {
                                     if (dataSnapshot.child(userName).hasChild(workspace)) {
@@ -136,7 +136,7 @@ public class SettingsActivity extends AppCompatActivity {
                                         editor.apply();
                                         journey.setEnabled(false);
                                     } else {
-                                        Toast.makeText(getContext(), "Journey doesn't exists", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Journey doesn't exist", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }

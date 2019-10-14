@@ -160,6 +160,7 @@ public class DisplayFragment extends Fragment{
                 String key = eventKeyList.get(position);
                 String title = currentEvent.getCaption();
                 int color = currentEvent.getColor();
+                int comColor = currentEvent.getComColor();
 
                 Intent intent = new Intent(getActivity(),Gallery.class);
 
@@ -168,6 +169,7 @@ public class DisplayFragment extends Fragment{
                 bundle.putString("Key",key);
                 bundle.putString("Title",title);
                 bundle.putInt("Color", color);
+                bundle.putInt("ComColor", comColor);
 
                 RC_GALLERY = position;
 //                intent.putExtra("URLs",URLs);
@@ -212,7 +214,6 @@ public class DisplayFragment extends Fragment{
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getActivity(),"Failed",Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }

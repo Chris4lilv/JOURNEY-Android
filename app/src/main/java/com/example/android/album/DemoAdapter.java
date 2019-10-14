@@ -82,7 +82,6 @@ public class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.BaseViewHolder
             if (data != null) {
                 String text = (String) data;
                 Glide.with(itemView.getContext()).load(text).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.drawable.empty_photo).crossFade().into(ivImage);
-
             }
 
         }

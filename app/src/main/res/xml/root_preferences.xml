@@ -26,9 +26,8 @@
             android:inputType="textEmailAddress" />
         <EditTextPreference
             app:key="joinJourney"
-            android:title="Join a journey"
-            app:useSimpleSummaryProvider="true"
-            android:defaultValue="UserEmail/JourneyName"/>
+            android:title="Join a journey\n(email/journey name)"
+            app:useSimpleSummaryProvider="true"/>
 
         <ListPreference
             app:defaultValue="reply"

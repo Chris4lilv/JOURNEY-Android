@@ -15,8 +15,6 @@ public class DynamicColor {
     private int color;
     private Context context;
 
-    public DynamicColor(){}
-
     public DynamicColor(Bitmap firstBitmap, Context context){
         this.context = context;
         getAverageColor(firstBitmap);
@@ -43,9 +41,6 @@ public class DynamicColor {
         this.color = Color.rgb(this.red, this.green, this.blue);
     }
 
-    /**
-     * @return the dynamic average color
-     */
     public int getColor(){
         return this.color;
     }
