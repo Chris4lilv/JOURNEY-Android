@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         Intent intent = getIntent();
-        firstTime = intent.getBooleanExtra("signUp",false);
+        firstTime = true;
+//        firstTime = intent.getBooleanExtra("signUp",false);
         SharedPreferences newUserGuide = PreferenceManager.getDefaultSharedPreferences(this);
         newUserGuide.edit().putBoolean("FirstTime", firstTime).apply();
 

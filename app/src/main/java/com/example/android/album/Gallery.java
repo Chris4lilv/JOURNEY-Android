@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -37,6 +39,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
+
 
 public class Gallery extends AppCompatActivity {
 
@@ -57,6 +63,9 @@ public class Gallery extends AppCompatActivity {
 
     private String mCurrentUser;
     private String mDirectory;
+
+    private SharedPreferences sharedPreferences;
+    private boolean secondTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +106,20 @@ public class Gallery extends AppCompatActivity {
         recyclerView.setAdapter(adapter = new DemoAdapter());
 
         adapter.replaceAll(urlsList);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        secondTime = sharedPreferences.getBoolean("SecondTime",false);
+        if(secondTime){
+            new GuideView.Builder(this)
+                    .setTitle("Click the image to see it in original size")
+                    .setGravity(Gravity.auto) //optional
+                    .setDismissType(DismissType.anywhere) //optional - default DismissType.targetView
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTargetView(galleryTitle)
+                    .build()
+                    .show();
+        }
 
         /**
          * Detect gesture on single item in recyclerview

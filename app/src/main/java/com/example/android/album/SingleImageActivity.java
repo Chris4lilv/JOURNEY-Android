@@ -10,16 +10,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -28,10 +31,17 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.File;
 import java.util.Arrays;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
+
 public class SingleImageActivity extends AppCompatActivity {
-    ImageView imageView;
+    private ImageView imageView;
+    private TextView guideIndicator;
     private static final int REQUEST_CODE = 1;
 
+    private SharedPreferences sharedPreferences;
+    private boolean secondTime;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +53,7 @@ public class SingleImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_image);
 
         imageView = findViewById(R.id.imageView2);
+        guideIndicator = findViewById(R.id.guide_indicator);
         Intent intent = getIntent();
         String url = intent.getStringExtra("IMAGE_URL");
         Glide.with(this).load(url).asBitmap().into(imageView);
@@ -69,6 +80,21 @@ public class SingleImageActivity extends AppCompatActivity {
                 return true;
             }
         });
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        secondTime = sharedPreferences.getBoolean("SecondTime", false);
+        if(secondTime){
+            new GuideView.Builder(this)
+                    .setTitle("Hold to save image, tap to return")
+                    .setGravity(Gravity.auto) //optional
+                    .setDismissType(DismissType.anywhere) //optional - default DismissType.targetView
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTargetView(guideIndicator)
+                    .build()
+                    .show();
+            sharedPreferences.edit().remove("SecondTime").apply();
+        }
+
     }
 
     private void imageLongClick(){

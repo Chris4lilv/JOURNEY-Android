@@ -226,8 +226,10 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                                 Event event = new Event(uris,cap,date, color, comColor);
                                 myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
                                 createEventButton.setClickable(true);
-                            //kill the activity and remove it from the stack
+                                sharedPreferences.edit().remove("FirstTime").apply();
                                 onBackPressed();
+                                sharedPreferences.edit().putBoolean("SecondTime", true).apply();
+                            //kill the activity and remove it from the stack
                         }
                     });
                 }
@@ -289,15 +291,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
             rootLayout.setVisibility(View.VISIBLE);
         }
 
-//        caption.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if(!hasFocus && caption.length() != 0 && firstTime){
-//                    selectDateGuide();
-//                }
-//            }
-//        });
-
         caption.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -327,12 +320,6 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                     .setTargetView(caption)
                     .setContentTextSize(12)//optional
                     .setTitleTextSize(14)
-                    .setGuideListener(new GuideListener() {
-                        @Override
-                        public void onDismiss(View view) {
-                            sharedPreferences.edit().putBoolean("FirstTime", false).apply();
-                        }
-                    })
                     .build()
                     .show();
         }
@@ -493,7 +480,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
 
     @Override
     public void onBackPressed() {
-        if(caption.isFocused()){
+        if(caption.isFocused() && firstTime){
             View view = this.getCurrentFocus();
             if(view != null){
                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);

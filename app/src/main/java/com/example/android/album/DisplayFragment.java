@@ -62,10 +62,10 @@ import com.google.firebase.storage.UploadTask;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import io.grpc.internal.SharedResourceHolder;
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
-import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
 public class DisplayFragment extends Fragment{
 
@@ -95,6 +95,12 @@ public class DisplayFragment extends Fragment{
     public String mCurrentUser;
     public String mDirectory;
     public String mWorkspace;
+
+    public boolean firstTime;
+    public boolean secondTime;
+
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
     @Nullable
     @Override
@@ -242,9 +248,31 @@ public class DisplayFragment extends Fragment{
             }
         });
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        sharedPreferences.edit().putBoolean("SecondTime", false).apply();
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener(){
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if(key.equals("SecondTime")){
+                    secondTime = sharedPreferences.getBoolean("SecondTime",false);
+                    if(secondTime){
+                        new GuideView.Builder(getContext())
+                                .setTitle("Tap the event to see what you just created")
+                                .setGravity(Gravity.auto) //optional
+                                .setDismissType(DismissType.anywhere) //optional - default DismissType.targetView
+                                .setTargetView(loadingIndicator)
+                                .setContentTextSize(12)//optional
+                                .setTitleTextSize(14)//optional
+                                .build()
+                                .show();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        boolean firstTime = sharedPreferences.getBoolean("FirstTime",false);
+                    }
+
+                }
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
+        firstTime = sharedPreferences.getBoolean("FirstTime",false);
         if(firstTime){
             new GuideView.Builder(getContext())
                     .setTitle("Here you can add an event")
@@ -252,15 +280,10 @@ public class DisplayFragment extends Fragment{
                     .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
                     .setTargetView(fabAdd)
                     .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)
-                    .setGuideListener(new GuideListener() {
-                        @Override
-                        public void onDismiss(View view) {
-
-                        }
-                    })//optional
+                    .setTitleTextSize(14)//optional
                     .build()
                     .show();
+
         }
 
 
