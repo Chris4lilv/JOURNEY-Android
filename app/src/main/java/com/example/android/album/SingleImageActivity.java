@@ -93,10 +93,10 @@ public class SingleImageActivity extends AppCompatActivity {
                     .build()
                     .show();
             sharedPreferences.edit().remove("SecondTime").apply();
+            sharedPreferences.edit().putBoolean("ThirdTime",true).apply();
         }
 
     }
-
     private void imageLongClick(){
         AlertDialog.Builder builder = new AlertDialog.Builder(SingleImageActivity.this);
         builder.setMessage("Save image?");

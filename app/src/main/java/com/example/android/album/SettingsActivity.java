@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,17 +25,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.auth.User;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
+
 public class SettingsActivity extends AppCompatActivity {
 
     public Boolean checkJourney;
     private static FirebaseDatabase mFirebaseDatabase;
     private static DatabaseReference mDatabaseRef;
     private static SharedPreferences sharedPreferences;
+    private static boolean thirdTime;
+    private static TextView journeyGuide;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
+        journeyGuide = findViewById(R.id.journey_guide);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())
@@ -55,6 +63,18 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            thirdTime = sharedPreferences.getBoolean("ThirdTime", false);
+            if(thirdTime){
+                new GuideView.Builder(getContext())
+                        .setTitle("Here you can either create or join his/her journey, if you want to remove the journey simply clear the text")
+                        .setGravity(Gravity.auto) //optional
+                        .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                        .setTargetView(journeyGuide)
+                        .setContentTextSize(12)//optional
+                        .setTitleTextSize(14)//optional
+                        .build()
+                        .show();
+            }
 
             //Initialization
             final EditTextPreference journey = findPreference("startJourney");

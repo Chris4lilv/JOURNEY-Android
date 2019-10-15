@@ -39,6 +39,7 @@
                 android:layout_margin="16dp"
                 android:layout_above="@+id/input_email"
                 android:visibility="gone"
+                android:inputType="textCapCharacters"
                 android:hint="Username:"/>
 
             <EditText

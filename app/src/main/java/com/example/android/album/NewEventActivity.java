@@ -226,9 +226,12 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                                 Event event = new Event(uris,cap,date, color, comColor);
                                 myRef.child(mDirectory).child(mWorkSpace).push().setValue(event);
                                 createEventButton.setClickable(true);
-                                sharedPreferences.edit().remove("FirstTime").apply();
                                 onBackPressed();
-                                sharedPreferences.edit().putBoolean("SecondTime", true).apply();
+                                if(firstTime){
+                                    sharedPreferences.edit().remove("FirstTime").apply();
+                                    sharedPreferences.edit().putBoolean("SecondTime", true).apply();
+                                }
+
                             //kill the activity and remove it from the stack
                         }
                     });

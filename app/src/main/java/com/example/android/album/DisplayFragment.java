@@ -98,6 +98,7 @@ public class DisplayFragment extends Fragment{
 
     public boolean firstTime;
     public boolean secondTime;
+    private TextView newEventGuide;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -116,6 +117,8 @@ public class DisplayFragment extends Fragment{
         emptyView = (TextView) view.findViewById(R.id.empty_view);
 
         loadingIndicator = (ProgressBar)view.findViewById(R.id.loading_indicator);
+
+        newEventGuide = view.findViewById(R.id.new_event_guide);
 
         eventsList = new ArrayList<>();
         eventKeyList = new ArrayList<>();
@@ -258,9 +261,9 @@ public class DisplayFragment extends Fragment{
                     if(secondTime){
                         new GuideView.Builder(getContext())
                                 .setTitle("Tap the event to see what you just created")
-                                .setGravity(Gravity.auto) //optional
-                                .setDismissType(DismissType.anywhere) //optional - default DismissType.targetView
-                                .setTargetView(loadingIndicator)
+                                .setGravity(Gravity.center) //optional
+                                .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                                .setTargetView(newEventGuide)
                                 .setContentTextSize(12)//optional
                                 .setTitleTextSize(14)//optional
                                 .build()
@@ -325,8 +328,8 @@ public class DisplayFragment extends Fragment{
                 //Hide the loading indicator after the first time loading
                 loadingIndicator.setVisibility(View.GONE);
 
-                listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
-                mListView.setAdapter(listViewAdapter);
+//                listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
+//                mListView.setAdapter(listViewAdapter);
                 listViewAdapter.notifyDataSetChanged();
             }
 

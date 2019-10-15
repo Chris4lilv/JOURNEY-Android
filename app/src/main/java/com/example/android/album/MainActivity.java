@@ -34,10 +34,11 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.DuplicateFormatFlagsException;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
+
 public class MainActivity extends AppCompatActivity{
-    //TODO: listview 左边显示日期背景更换
-    //TODO：让listview的每一个item透明度低一些
-    //TODO：listview的title字体更换
 
     private DrawerLayout mDrawerLayout;
     private Toolbar toolbar;
@@ -50,7 +51,10 @@ public class MainActivity extends AppCompatActivity{
 
     private MenuItem newJourney;
 
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
+
     private boolean firstTime;
+    private boolean thirdTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +62,10 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         Intent intent = getIntent();
-        firstTime = true;
-//        firstTime = intent.getBooleanExtra("signUp",false);
+        firstTime = intent.getBooleanExtra("signUp",false);
         SharedPreferences newUserGuide = PreferenceManager.getDefaultSharedPreferences(this);
         newUserGuide.edit().putBoolean("FirstTime", firstTime).apply();
+        newUserGuide.edit().putBoolean("ThirdTime",false).apply();
 
         mAuth = FirebaseAuth.getInstance();
         final FirebaseUser user = mAuth.getCurrentUser();
@@ -106,6 +110,26 @@ public class MainActivity extends AppCompatActivity{
 
         mUserName = headerView.findViewById(R.id.user_name);
         mUserName.setText(user.getDisplayName());
+
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if(key.equals("ThirdTime")){
+                    thirdTime = sharedPreferences.getBoolean(key, false);
+                    new GuideView.Builder(MainActivity.this)
+                            .setTitle("Click on the button left to explore more")
+                            .setGravity(Gravity.auto) //optional
+                            .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                            .setTargetView(toolbar)
+                            .setContentTextSize(12)//optional
+                            .setTitleTextSize(14)//optional
+                            .build()
+                            .show();
+                }
+            }
+        };
+
+        newUserGuide.registerOnSharedPreferenceChangeListener(listener);
 
 
         nv_left.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

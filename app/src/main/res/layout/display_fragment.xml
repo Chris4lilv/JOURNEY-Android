@@ -18,6 +18,11 @@
         </ListView>
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:id="@+id/new_event_guide"/>
+
+        <TextView
             android:id="@+id/empty_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
