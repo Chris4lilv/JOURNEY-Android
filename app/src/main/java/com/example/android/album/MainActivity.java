@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
     private FirebaseAuth mAuth;
     private TextView mUserName;
+    private TextView mUserEmail;
+    private ImageView mUserProfile;
 
     private String journeyName;
     private String joinJourney;
@@ -92,6 +95,8 @@ public class MainActivity extends AppCompatActivity{
         Menu menu = nv_left.getMenu();
         final SubMenu journeysMenu = menu.findItem(R.id.journeys_group).getSubMenu();
 
+        mUserProfile = headerView.findViewById(R.id.profile);
+
         //Get journeyNames from sharedPreference
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         journeyName = sharedPreferences.getString("JourneyName", "");
@@ -106,10 +111,16 @@ public class MainActivity extends AppCompatActivity{
                 newJourney = journeysMenu.add(0,101, 0, joinJourney.substring(joinJourney.indexOf("/") + 1));
                 newJourney.setIcon(R.drawable.romance_heart_24);
             }
+            mUserProfile.setImageResource(R.drawable.ic_people_black_24dp);
+        }else{
+            mUserProfile.setImageResource(R.drawable.ic_person_black_24dp);
         }
 
         mUserName = headerView.findViewById(R.id.user_name);
+        mUserEmail = headerView.findViewById(R.id.user_email);
         mUserName.setText(user.getDisplayName());
+        mUserEmail.setText(user.getEmail());
+
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override

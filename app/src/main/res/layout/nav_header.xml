@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:background="#198672"
+    android:background="#00b5ff"
     android:minHeight="150dp"
     android:orientation="vertical">
 
@@ -13,7 +13,8 @@
         android:layout_gravity="start"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:src="@mipmap/ic_launcher_round" />
+        android:id="@+id/profile"
+        android:src="@drawable/ic_person_black_24dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,7 +27,7 @@
         android:textColor="@android:color/white"
         android:id="@+id/user_name"
         android:textSize="32dp"
-        android:text="haha"/>
+        android:text="Chris"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -35,7 +36,8 @@
         android:textColor="@android:color/white"
         android:layout_gravity="start"
         android:layout_marginLeft="16dp"
-        android:text="假装这里有一个标题" />
+        android:id="@+id/user_email"
+        android:text="chris4lilv@gmail.com" />
 
 
 </LinearLayout>

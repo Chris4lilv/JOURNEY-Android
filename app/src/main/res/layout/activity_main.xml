@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/activity_view">
+    android:id="@+id/activity_view"
+    android:background="@drawable/display_fragment_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF">
+            android:background="#80D6FF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -29,7 +30,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_marginStart="0dp"
                     android:gravity="center_vertical"
-                    android:text="JourNEY"
+                    android:text="JOURNEY"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large" />
             </RelativeLayout>
 
