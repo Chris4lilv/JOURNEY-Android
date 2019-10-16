@@ -13,6 +13,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -38,10 +39,14 @@ public class SignInActivity extends AppCompatActivity {
 
     Button signInButton;
     Button confirmButton;
+    Button cancelSignUpButton;
 
-    EditText inputEmail;
-    EditText inputPassword;
-    EditText inputUsername;
+    EditText signInEmail;
+    EditText signInPassword;
+    EditText signUpUsername;
+    EditText signupEmail;
+    EditText signupPassword;
+
 
     CardView signInCardView;
 
@@ -57,7 +62,7 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
+        setContentView(R.layout.activity_sign_in_new);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -69,10 +74,16 @@ public class SignInActivity extends AppCompatActivity {
 
         hint = findViewById(R.id.hint);
 
-        inputEmail = findViewById(R.id.input_email);
-        inputPassword = findViewById(R.id.input_password);
-        inputUsername = findViewById(R.id.input_username);
+        //Initialize edit text
+        signInEmail = findViewById(R.id.signin_email_edittext);
+        signInPassword = findViewById(R.id.signin_password_edittext);
+        signUpUsername = findViewById(R.id.signup_username_edittext);
+        signupEmail = findViewById(R.id.signup_email_edittext);
+        signupPassword = findViewById(R.id.signup_password_edittext);
         mCloseSignUp = findViewById(R.id.close_sign_up);
+
+
+        cancelSignUpButton = findViewById(R.id.cancel_button);
 
         passwordReveal = findViewById(R.id.password_reveal);
 
@@ -83,23 +94,10 @@ public class SignInActivity extends AppCompatActivity {
         //This will underline the SIGNUP text
         signUpPage.setPaintFlags(signUpPage.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-        mCloseSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateUI("SignIn");
-            }
-        });
-
-        signUpPage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateUI("SignUp");
-
-            }
-        });
-
+        signUpPage.setOnClickListener(new NavigationIconClickListener(this,findViewById(R.id.upper_layer),new AccelerateDecelerateInterpolator()));
+        cancelSignUpButton.setOnClickListener(new NavigationIconClickListener(this,findViewById(R.id.upper_layer)));
         //Disable password input if the email input is empty
-        inputEmail.addTextChangedListener(new TextWatcher() {
+        signInEmail.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -113,12 +111,12 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 if(!editable.toString().isEmpty()){
-                    inputPassword.setEnabled(true);
+                    signInPassword.setEnabled(true);
                     //This will hide password when type in
-                    inputPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                    inputPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                    signInPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    signInPassword.setInputType(InputType.TYPE_CLASS_TEXT);
                 }else{
-                    inputPassword.setEnabled(false);
+                    signInPassword.setEnabled(false);
                 }
             }
         });
@@ -127,13 +125,13 @@ public class SignInActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = inputEmail.getText().toString();
-                String password = inputPassword.getText().toString();
+                String email = signInEmail.getText().toString();
+                String password = signInPassword.getText().toString();
                 if(email.isEmpty() && password.isEmpty()) {
-                    inputEmail.startAnimation(shake);
-                    inputPassword.startAnimation(shake);
+                    signInEmail.startAnimation(shake);
+                    signInPassword.startAnimation(shake);
                 }else if(password.isEmpty()){
-                    inputPassword.startAnimation(shake);
+                    signInPassword.startAnimation(shake);
                 }else{
                     signIn(email, password);
                 }
@@ -144,19 +142,19 @@ public class SignInActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = inputEmail.getText().toString();
-                String password = inputPassword.getText().toString();
-                String username = inputUsername.getText().toString();
+                String email = signupEmail.getText().toString();
+                String password = signupPassword.getText().toString();
+                String username = signUpUsername.getText().toString();
                 if(email.isEmpty() && password.isEmpty() && username.isEmpty()) {
-                    inputEmail.startAnimation(shake);
-                    inputPassword.startAnimation(shake);
-                    inputUsername.startAnimation(shake);
+                    signupEmail.startAnimation(shake);
+                    signupPassword.startAnimation(shake);
+                    signUpUsername.startAnimation(shake);
                 }else if(username.isEmpty()){
-                    inputPassword.startAnimation(shake);
+                    signupPassword.startAnimation(shake);
                 }else if(email.isEmpty()){
-                    inputEmail.startAnimation(shake);
+                    signupEmail.startAnimation(shake);
                 }else if(password.isEmpty()){
-                    inputPassword.startAnimation(shake);
+                    signupPassword.startAnimation(shake);
                 }else{
                     signUp(email, password, username);
                 }
@@ -168,9 +166,9 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    inputPassword.setTransformationMethod(null);
+                    signInPassword.setTransformationMethod(null);
                 } else
-                    inputPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    signInPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
             }
         });
@@ -220,7 +218,7 @@ public class SignInActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            updateUI("SignIn");
+                            clearEdittext();
 
                             // Sign in success, update UI with the signed-in user's information
                             final FirebaseUser user = mAuth.getCurrentUser();
@@ -249,8 +247,8 @@ public class SignInActivity extends AppCompatActivity {
      */
     private void proceedToMain(FirebaseUser user, boolean justSignUp){
         if(user == null){
-            inputPassword.setText("");
-            inputEmail.setText("");
+            signInEmail.setText("");
+            signInPassword.setText("");
         }else{
             String userName = user.getDisplayName();
             String userEmail = user.getEmail();
@@ -263,33 +261,40 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
+//    /**
+//     * update SignIn UI
+//     */
+//    private void updateUI(String viewStatus){
+//
+//        clearEdittext();
+//
+//        if(viewStatus.equals("SignUp")){
+//            signInCardView.setCardBackgroundColor( getResources().getColor(R.color.signUpBackground));
+//            inputUsername.setVisibility(View.VISIBLE);
+//            hint.setVisibility(View.GONE);
+//            signUpPage.setVisibility(View.GONE);
+//            signInButton.setVisibility(View.GONE);
+//            confirmButton.setVisibility(View.VISIBLE);
+//        }else if(viewStatus.equals("SignIn")){
+//            signInCardView.setCardBackgroundColor( getResources().getColor(R.color.cardview_light_background));
+//            inputUsername.setVisibility(View.GONE);
+//            hint.setVisibility(View.VISIBLE);
+//            signUpPage.setVisibility(View.VISIBLE);
+//            signInButton.setVisibility(View.VISIBLE);
+//            confirmButton.setVisibility(View.GONE);
+//
+//        }
+//
+//    }
+
     /**
-     * update SignIn UI
+     * Clear input scope.
      */
-    private void updateUI(String viewStatus){
-
-        inputEmail.setText("");
-        inputPassword.setText("");
-        inputUsername.setText("");
-
-        if(viewStatus.equals("SignUp")){
-            signInCardView.setCardBackgroundColor( getResources().getColor(R.color.signUpBackground));
-            inputUsername.setVisibility(View.VISIBLE);
-            hint.setVisibility(View.GONE);
-            signUpPage.setVisibility(View.GONE);
-            signInButton.setVisibility(View.GONE);
-            confirmButton.setVisibility(View.VISIBLE);
-        }else if(viewStatus.equals("SignIn")){
-            signInCardView.setCardBackgroundColor( getResources().getColor(R.color.cardview_light_background));
-            inputUsername.setVisibility(View.GONE);
-            hint.setVisibility(View.VISIBLE);
-            signUpPage.setVisibility(View.VISIBLE);
-            signInButton.setVisibility(View.VISIBLE);
-            confirmButton.setVisibility(View.GONE);
-
-        }
-
-
-
+    private void clearEdittext(){
+        signupEmail.setText("");
+        signupPassword.setText("");
+        signUpUsername.setText("");
+        signInEmail.setText("");
+        signInPassword.setText("");
     }
 }
