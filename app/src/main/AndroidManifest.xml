@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.album">
+    package="com.nuoxu.android.album">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,9 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.nuoxu.android.album.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
-        <activity android:name=".SignInActivity">
+        <activity android:name="com.nuoxu.android.album.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,11 +24,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".NewEventActivity"
+            android:name="com.nuoxu.android.album.NewEventActivity"
             android:theme="@style/AppTheme.Transparent" />
-        <activity android:name=".SingleImageActivity" />
-        <activity android:name=".Gallery" />
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name="com.nuoxu.android.album.SingleImageActivity" />
+        <activity android:name="com.nuoxu.android.album.Gallery" />
+        <activity android:name="com.nuoxu.android.album.MainActivity"></activity>
     </application>
 
 </manifest>

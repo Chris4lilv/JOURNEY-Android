@@ -12,11 +12,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@drawable/app_name"
+                android:layout_above="@id/signup_email"
+                android:layout_marginBottom="140dp"
+                android:layout_alignParentTop="true"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Shrine.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="340dp"
+                android:layout_marginTop="300dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:id="@+id/signup_username"
