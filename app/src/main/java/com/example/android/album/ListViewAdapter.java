@@ -43,7 +43,7 @@ public class ListViewAdapter extends ArrayAdapter<Event> {
 
         //update UI
         year.setText(currentEvent.getDate().substring(0,4));
-        month.setText(currentEvent.getDate().substring(4,6));
+        month.setText(MONTHS[Integer.parseInt(currentEvent.getDate().substring(4,6)) - 1]);
         day.setText(currentEvent.getDate().substring(6,8));
 
         caption.setText(currentEvent.getCaption());

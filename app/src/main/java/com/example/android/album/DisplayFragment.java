@@ -259,7 +259,7 @@ public class DisplayFragment extends Fragment{
                 if(key.equals("SecondTime")){
                     secondTime = sharedPreferences.getBoolean("SecondTime",false);
                     if(secondTime){
-                        new GuideView.Builder(getContext())
+                        new GuideView.Builder(getActivity())
                                 .setTitle("Tap the event to see what you just created")
                                 .setGravity(Gravity.center) //optional
                                 .setDismissType(DismissType.targetView) //optional - default DismissType.targetView

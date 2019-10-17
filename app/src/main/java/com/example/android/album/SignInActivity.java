@@ -260,33 +260,6 @@ public class SignInActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
-//    /**
-//     * update SignIn UI
-//     */
-//    private void updateUI(String viewStatus){
-//
-//        clearEdittext();
-//
-//        if(viewStatus.equals("SignUp")){
-//            signInCardView.setCardBackgroundColor( getResources().getColor(R.color.signUpBackground));
-//            inputUsername.setVisibility(View.VISIBLE);
-//            hint.setVisibility(View.GONE);
-//            signUpPage.setVisibility(View.GONE);
-//            signInButton.setVisibility(View.GONE);
-//            confirmButton.setVisibility(View.VISIBLE);
-//        }else if(viewStatus.equals("SignIn")){
-//            signInCardView.setCardBackgroundColor( getResources().getColor(R.color.cardview_light_background));
-//            inputUsername.setVisibility(View.GONE);
-//            hint.setVisibility(View.VISIBLE);
-//            signUpPage.setVisibility(View.VISIBLE);
-//            signInButton.setVisibility(View.VISIBLE);
-//            confirmButton.setVisibility(View.GONE);
-//
-//        }
-//
-//    }
-
     /**
      * Clear input scope.
      */
