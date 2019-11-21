@@ -146,22 +146,23 @@ public class SignInActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(!isValid(signUpPassWordEditText.getText())){
                     signupPassword.setError("Password must contain at least 8 characters.");
-                }
-                String email = signupEmail.getText().toString();
-                String password = signupPassword.getText().toString();
-                String username = signUpUsername.getText().toString();
-                if(email.isEmpty() && password.isEmpty() && username.isEmpty()) {
-                    signupEmail.startAnimation(shake);
-                    signupPassword.startAnimation(shake);
-                    signUpUsername.startAnimation(shake);
-                }else if(username.isEmpty()){
-                    signupPassword.startAnimation(shake);
-                }else if(email.isEmpty()){
-                    signupEmail.startAnimation(shake);
-                }else if(password.isEmpty()){
-                    signupPassword.startAnimation(shake);
-                }else{
-                    signUp(email, password, username);
+                }else {
+                    String email = signupEmail.getText().toString();
+                    String password = signupPassword.getText().toString();
+                    String username = signUpUsername.getText().toString();
+                    if(email.isEmpty() && password.isEmpty() && username.isEmpty()) {
+                        signupEmail.startAnimation(shake);
+                        signupPassword.startAnimation(shake);
+                        signUpUsername.startAnimation(shake);
+                    }else if(username.isEmpty()){
+                        signupPassword.startAnimation(shake);
+                    }else if(email.isEmpty()){
+                        signupEmail.startAnimation(shake);
+                    }else if(password.isEmpty()){
+                        signupPassword.startAnimation(shake);
+                    }else{
+                        signUp(email, password, username);
+                    }
                 }
 
             }
