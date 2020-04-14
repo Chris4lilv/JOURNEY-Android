@@ -1,23 +1,23 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
-INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
-INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
-INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
-INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
-INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
-INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
+ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
+INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
+INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
+INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
+INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
+INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
+INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
 	package
-		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:2:5-52
+		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:2:5-50
 		INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml
 		INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml
 	android:versionName
 		INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml
-		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
+		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
 		INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml
 	android:versionCode
 		INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml
-		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:55
+		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:1-2:53
 		INJECTED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml
 	xmlns:android
 		ADDED from D:\Android\Project\Album\datepickerlibrary\src\main\AndroidManifest.xml:1:11-69

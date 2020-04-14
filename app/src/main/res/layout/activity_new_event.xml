@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/root_layout"
-    android:background="@color/colorPrimary">
+    android:background="#029fed">
 
     <FrameLayout
         android:layout_width="wrap_content"
@@ -17,12 +17,12 @@
             android:layout_height="wrap_content"
             android:id="@+id/dateTextView"
             android:layout_centerHorizontal="true"
+            android:text="On October 13, 2019,"
             android:layout_marginTop="45dp"
             android:textSize="30sp"
             android:fontFamily="@font/roboto_light"
             android:layout_alignStart="@id/frame_layout"
-            android:layout_marginStart="40dp"
-            android:text="On October 13, 2019, "/>
+            android:layout_marginStart="40dp"/>
 
         <EditText
             android:id="@+id/caption"

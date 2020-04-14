@@ -45,6 +45,7 @@
         android:layout_margin="16dp"
         android:baselineAlignBottom="true"
         android:src="@drawable/fab_plus"
+        android:backgroundTint="#42fbdc"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         app:elevation="6dp"
