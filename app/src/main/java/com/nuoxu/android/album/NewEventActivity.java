@@ -64,13 +64,16 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
@@ -148,7 +151,12 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         dateTextView = findViewById(R.id.dateTextView);
         dateSelect = findViewById(R.id.dateSelect);
 
-        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMMM-yyyy");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date today = Calendar.getInstance().getTime();
+        String dateStringRaw = dateFormat.format(today);
+        String dateString = "On " + dateStringRaw.substring(3,8) + " " + dateStringRaw.substring(0,2) + ", " + dateStringRaw.substring(9) + ",";
+        dateTextView.setText(dateString);
 
         final Intent intent = getIntent();
         mWorkSpace = intent.getStringExtra("WorkSpace");
