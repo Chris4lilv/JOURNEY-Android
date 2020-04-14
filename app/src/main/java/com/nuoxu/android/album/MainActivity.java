@@ -181,6 +181,10 @@ public class MainActivity extends AppCompatActivity{
                             }
                         }, 300);
                         break;
+                    case R.id.find_image:
+                        Intent findImageIntent = new Intent(MainActivity.this,ImageSearch.class);
+                        startActivity(findImageIntent);
+                        break;
                     case R.id.nav_account_setting:
                         Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
                         startActivity(intentSettings);

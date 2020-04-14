@@ -2,10 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nuoxu.android.album">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/launcher1"
@@ -13,10 +9,14 @@
         android:roundIcon="@mipmap/launcher1"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+        <activity android:name=".ImageSearch"></activity>
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="label" />
         <activity
-            android:name="com.nuoxu.android.album.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-        <activity android:name="com.nuoxu.android.album.SignInActivity">
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,11 +24,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.nuoxu.android.album.NewEventActivity"
+            android:name=".NewEventActivity"
             android:theme="@style/AppTheme.Transparent" />
-        <activity android:name="com.nuoxu.android.album.SingleImageActivity" />
-        <activity android:name="com.nuoxu.android.album.Gallery" />
-        <activity android:name="com.nuoxu.android.album.MainActivity"></activity>
+        <activity android:name=".SingleImageActivity" />
+        <activity android:name=".Gallery" />
+        <activity android:name=".MainActivity" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

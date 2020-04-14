@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public class Event implements Serializable {
     private ArrayList<String> url;
+    private Image image;
     private String caption;
     private String date;
     private String key;

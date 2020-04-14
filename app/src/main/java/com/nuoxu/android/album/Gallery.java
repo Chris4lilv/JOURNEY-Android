@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -82,6 +83,7 @@ public class Gallery extends AppCompatActivity {
         mAppBarLayout.setBackgroundColor(color);
         galleryTitle.setTextColor(comColor);
 
+
         recyclerView = (RecyclerView) findViewById(R.id.recylerview);
         recyclerView.setHasFixedSize(true);
 
@@ -152,4 +154,29 @@ public class Gallery extends AppCompatActivity {
     public void onBackPressed() {
         supportFinishAfterTransition();
     }
+
+//    private String invertColor(int colorVal,boolean bw) {
+//        String hex = String.format("#%06X", (0xFFFFFF & colorVal));
+//        if (hex.indexOf('#') == 0) {
+//            hex = hex.substring(1);
+//        }
+//        if (hex.length() != 6) {
+//            Log.e("Invalid HEX color",hex);
+//        }
+//
+//        int r = Integer.parseInt(hex.substring(0, 2), 16),
+//                g = Integer.parseInt(hex.substring(2, 4), 16),
+//                b = Integer.parseInt(hex.substring(4, 6), 16);
+//        if (bw) {
+//            return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+//                    ? "#000000"
+//                    : "#FFFFFF";
+//        }
+//        // invert color components
+//        r = (255 - r);
+//        g = (255 - g);
+//        b = (255 - b);
+//        // pad each with zeros and return
+//        return "#" + r + g + b;
+//    }
 }

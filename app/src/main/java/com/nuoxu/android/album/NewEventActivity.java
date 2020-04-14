@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,18 +39,39 @@ import android.widget.Toast;
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
+import com.google.firebase.ml.vision.label.FirebaseVisionOnDeviceImageLabelerOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.firestore.v1.WriteResult;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
@@ -63,7 +85,14 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
     private int color = 0;
     private int comColor = 0;
 
+    //FirebaseVision
+    FirebaseVisionImage fvImage;
+    List<FirebaseVisionImage> fvImageList = Lists.newArrayList();
+
+    FirebaseVisionImageLabeler labeler;
+
     //setup firebase
+    FirebaseFirestore firebaseFirestore;
     FirebaseStorage mStorage;
     StorageReference mStorageReference;
     FirebaseDatabase database;
@@ -119,6 +148,8 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         dateTextView = findViewById(R.id.dateTextView);
         dateSelect = findViewById(R.id.dateSelect);
 
+        
+
         final Intent intent = getIntent();
         mWorkSpace = intent.getStringExtra("WorkSpace");
 
@@ -128,6 +159,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
 
 
         //initialize storage, database and their reference
+        firebaseFirestore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
@@ -174,7 +206,9 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                     int position = imageRecyclerView.getChildLayoutPosition(childView);
                     if(position != 0){
                         //update the UI
+                        urlHolder.remove(position - 1);
                         imageDisplay.remove(position);
+                        fvImageList.remove(position - 1);
                         adapter.replaceAll(imageDisplay);
                         Toast.makeText(getApplicationContext(),"Success!",Toast.LENGTH_SHORT).show();
                     }
@@ -212,7 +246,9 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                                 getContentResolver().openInputStream(urlHolder.get(0)));
                         DynamicColor dynamicColor = new DynamicColor(bm,getApplicationContext());
                         Palette p = Palette.from(bm).generate();
+                        Log.e("Palette p value", p.toString());
                         comColor = p.getLightMutedSwatch().getRgb();
+                        Log.e("comColor", comColor+"");
                         color = dynamicColor.getColor();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -386,6 +422,12 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         }
         if (requestCode == RC_PHOTO_PICKER) {
             Uri selectedImageUri = data.getData();
+            try {
+                fvImage = FirebaseVisionImage.fromFilePath(getApplicationContext(), selectedImageUri);
+                fvImageList.add(fvImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (selectedImageUri != null){
                 imageDisplay.add(selectedImageUri.toString());
                 urlHolder.add(selectedImageUri);
@@ -397,6 +439,11 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
         }
     }
 
+    /**
+     * This returns the image urls of all images in current event.
+     * @param imageUri
+     * @return
+     */
     public ArrayList<String>  uploadImage(ArrayList<String> imageUri){
         for(int i = 0; i < urlHolder.size(); i++){
             Uri selectedImageUri = urlHolder.get(i);
@@ -415,6 +462,7 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
+                        labelingProcess(selectedImageUri,downloadUri.toString());
                         imageUri.add(downloadUri.toString());
                     } else {
                         Toast.makeText(NewEventActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -498,5 +546,41 @@ public class NewEventActivity extends AppCompatActivity implements DatePickerDia
             unRevealActivity();
         }
 
+    }
+
+    private void labelingProcess(Uri imageUri, String imageUrl){
+        FirebaseVisionImage image = null;
+        try {
+            image = FirebaseVisionImage.fromFilePath(getApplicationContext(), imageUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FirebaseVisionOnDeviceImageLabelerOptions options = new FirebaseVisionOnDeviceImageLabelerOptions.Builder()
+         .setConfidenceThreshold(0.7f)
+         .build();
+        labeler = FirebaseVision.getInstance().getOnDeviceImageLabeler(options);
+        labeler.processImage(image)
+                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
+                    @Override
+                    public void onSuccess(List<FirebaseVisionImageLabel> labels) {
+                        Map<String,Object> imageMap = new HashMap<>();
+                        ArrayList<String> labelList = new ArrayList<>();
+                        for (FirebaseVisionImageLabel label : labels) {
+                            String text = label.getText();
+                            labelList.add(text.toLowerCase());
+                        }
+                        imageMap.put("Url", imageUrl);
+                        imageMap.put("labels",labelList);
+                        DocumentReference labelRef = firebaseFirestore.collection(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .document();
+                        labelRef.set(imageMap);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Labeling process","FAILED");
+                    }
+                });
     }
 }

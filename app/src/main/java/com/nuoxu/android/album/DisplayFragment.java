@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -233,20 +235,6 @@ public class DisplayFragment extends Fragment{
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if(key.equals("SecondTime")){
-                    secondTime = sharedPreferences.getBoolean("SecondTime",false);
-                    if(secondTime){
-                        new GuideView.Builder(getActivity())
-                                .setTitle("Tap the event to see what you just created")
-                                .setGravity(Gravity.center) //optional
-                                .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
-                                .setTargetView(newEventGuide)
-                                .setContentTextSize(12)//optional
-                                .setTitleTextSize(14)//optional
-                                .build()
-                                .show();
-
-                    }
-
                 }
             }
         };
@@ -307,6 +295,18 @@ public class DisplayFragment extends Fragment{
 //                listViewAdapter = new ListViewAdapter(getActivity(),eventsList);
 //                mListView.setAdapter(listViewAdapter);
                 listViewAdapter.notifyDataSetChanged();
+                secondTime = sharedPreferences.getBoolean("SecondTime",false);
+                if(secondTime){
+                    new GuideView.Builder(getContext())
+                            .setTitle("Now you can check out your event here")
+                            .setGravity(Gravity.auto) //optional
+                            .setDismissType(DismissType.targetView) //optional - default DismissType.targetView
+                            .setTargetView(newEventGuide)
+                            .setContentTextSize(12)//optional
+                            .setTitleTextSize(14)//optional
+                            .build()
+                            .show();
+                }
             }
 
             @Override

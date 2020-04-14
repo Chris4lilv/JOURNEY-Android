@@ -16,6 +16,10 @@
         android:id="@+id/account_group">
         <menu>
             <item
+                android:id="@+id/find_image"
+                android:icon="@drawable/baseline_search_black_24dp"
+                android:title="Find my image"/>
+            <item
                 android:id="@+id/nav_account_setting"
                 android:icon="@drawable/settings"
                 android:title="Settings" />
